@@ -67,6 +67,19 @@ pnpm deploy:celo
    CELOSCAN_API_KEY=your_celoscan_api_key
    ```
 
+3. Configure Ignition deployment parameters. These env vars are read automatically when running `hardhat ignition deploy`:
+   ```env
+   # Shared defaults
+   IGNITION_QUESTARCADEMODULE_CUSDADDRESS=0x765DE816845861e75A25fCA122bb6898B8B1282a  # cUSD on Celo mainnet
+   IGNITION_QUESTARCADEMODULE_FEERECIPIENT=0xYourFeeRecipientAddress
+   IGNITION_QUESTARCADEMODULE_PLATFORMFEEBPS=500  # 5% platform fee
+
+   # Network-specific overrides (optional)
+   IGNITION_ALFAJORES_QUESTARCADEMODULE_CUSDADDRESS=0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1
+   IGNITION_ALFAJORES_QUESTARCADEMODULE_FEERECIPIENT=0xYourTestnetFeeRecipient
+   ```
+   Provide the fee recipient address you control on each network and adjust the fee basis points as needed (max 1000 per contract guardrails).
+
 ## 📁 Project Structure
 
 ```

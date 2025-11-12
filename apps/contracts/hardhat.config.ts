@@ -1,5 +1,7 @@
+import "dotenv/config";
 import type { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox-viem";
+import "solidity-coverage";
 
 const config: HardhatUserConfig = {
   solidity: {
