@@ -484,10 +484,17 @@ export function useQuestArcadeSync() {
           const currentLocalBalance = currentState.balance;
           let lastSyncedBalance = currentState.lastSyncedOnChainBalance;
           
-          // Handle first sync or uninitialized state
-          if (lastSyncedBalance === 0) {
-            // First sync - initialize with current on-chain balance
-            lastSyncedBalance = normalizedBalance;
+          // If both local and last synced balances are zero and on-chain has a balance,
+          // this is a fresh sync (e.g., after disconnect/reconnect) - trust on-chain balance.
+          if (lastSyncedBalance === 0 && currentLocalBalance === 0) {
+            setBalance(normalizedBalance, true, normalizedBalance);
+            return;
+          }
+
+          // Handle first sync or uninitialized state when we already have a local balance
+          if (lastSyncedBalance === 0 && currentLocalBalance > 0) {
+            // Initialize last synced to current local balance as baseline
+            lastSyncedBalance = currentLocalBalance;
           }
           
           // Calculate local adjustments (purchases made since last sync)

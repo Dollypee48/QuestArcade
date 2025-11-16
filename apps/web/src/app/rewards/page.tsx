@@ -9,6 +9,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useGameStore } from "@/store/use-game-store";
 
 type RewardType = "all" | "booster" | "skin" | "badge" | "perk" | "claimed";
@@ -20,6 +21,8 @@ export default function RewardsPage() {
   const [selectedType, setSelectedType] = useState<RewardType>("all");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [pendingReward, setPendingReward] = useState<{ id: string; name: string; cost: number } | null>(null);
 
   // Validate and normalize data
   const safeRewards = useMemo(() => {
@@ -95,7 +98,7 @@ export default function RewardsPage() {
         const reward = safeRewards.find((r) => r?.id === rewardId);
         const rewardName = reward?.name || "Item";
         setSuccess(`Successfully purchased ${rewardName}!`);
-        setTimeout(() => setError(null), 5000);
+        setTimeout(() => setSuccess(null), 5000);
       } else {
         const errorMessage = result.error || "Failed to purchase item. Please try again.";
         setError(errorMessage);
@@ -146,6 +149,18 @@ export default function RewardsPage() {
       default:
         return type.toUpperCase();
     }
+  };
+
+  const openConfirmModal = (reward: { id: string; name: string; cost: number }) => {
+    setPendingReward(reward);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmRedeem = () => {
+    if (!pendingReward) return;
+    handleClaimReward(pendingReward.id);
+    setIsConfirmOpen(false);
+    setPendingReward(null);
   };
 
   return (
@@ -309,7 +324,13 @@ export default function RewardsPage() {
                         </div>
                         <Button
                           className="rounded-full px-6"
-                          onClick={() => handleClaimReward(reward.id)}
+                          onClick={() =>
+                            openConfirmModal({
+                              id: reward.id,
+                              name: reward.name,
+                              cost: rewardCost,
+                            })
+                          }
                           disabled={isClaimed || !canAfford || !isConnected}
                           variant={isClaimed ? "outline" : "default"}
                         >
@@ -335,6 +356,69 @@ export default function RewardsPage() {
           );
         })}
       </div>
+
+      {/* Confirm Redeem Modal */}
+      <Dialog
+        open={isConfirmOpen}
+        onOpenChange={(open) => {
+          setIsConfirmOpen(open);
+          if (!open) {
+            setPendingReward(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-md border-white/10 bg-gradient-card text-white">
+          <DialogHeader>
+            <DialogTitle>Confirm Purchase</DialogTitle>
+            <DialogDescription className="text-white/70">
+              {pendingReward
+                ? `You are about to redeem "${pendingReward.name}" for cUSD ${pendingReward.cost.toFixed(
+                    2
+                  )}. This will be deducted from your wallet balance.`
+                : "You are about to redeem this item. This will be deducted from your wallet balance."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4 space-y-2 text-sm text-white/70">
+            <p>
+              <span className="text-white/50">Current balance:</span>{" "}
+              <span className="font-semibold text-white">cUSD {safeBalance.toFixed(2)}</span>
+            </p>
+            {pendingReward && (
+              <p>
+                <span className="text-white/50">After purchase (approx):</span>{" "}
+                <span className="font-semibold text-white">
+                  cUSD {(safeBalance - pendingReward.cost >= 0 ? safeBalance - pendingReward.cost : 0).toFixed(2)}
+                </span>
+              </p>
+            )}
+          </div>
+          <DialogFooter className="mt-6 flex justify-end gap-3">
+            <Button
+              variant="outline"
+              className="rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10"
+              onClick={() => {
+                setIsConfirmOpen(false);
+                setPendingReward(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="rounded-full px-6"
+              onClick={handleConfirmRedeem}
+              disabled={
+                !pendingReward ||
+                !isConnected ||
+                safeBalance < (pendingReward?.cost ?? 0)
+              }
+            >
+              {pendingReward
+                ? `Confirm cUSD ${pendingReward.cost.toFixed(2)}`
+                : "Confirm"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Info Cards */}
       <section className="mt-12 grid gap-6 md:grid-cols-2">

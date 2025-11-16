@@ -4,9 +4,10 @@ import { RainbowKitProvider, connectorsForWallets } from "@rainbow-me/rainbowkit
 import "@rainbow-me/rainbowkit/styles.css";
 import { injectedWallet } from "@rainbow-me/rainbowkit/wallets";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { WagmiProvider, createConfig, http, fallback, useConnect } from "wagmi";
+import { useEffect, useRef } from "react";
+import { WagmiProvider, createConfig, http, fallback, useConnect, useAccount } from "wagmi";
 import { celo, celoAlfajores, celoSepolia } from "wagmi/chains";
+import { useGameStore } from "@/store/use-game-store";
 
 const connectors = connectorsForWallets(
   [
@@ -62,6 +63,9 @@ type MiniPayWindow = Window & {
 
 function WalletProviderInner({ children }: { children: React.ReactNode }) {
   const { connect, connectors } = useConnect();
+  const { address, isConnected } = useAccount();
+  const resetState = useGameStore((state) => state.resetState);
+  const previousAddressRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     // Check if the app is running inside MiniPay
@@ -85,6 +89,30 @@ function WalletProviderInner({ children }: { children: React.ReactNode }) {
       console.debug("Wallet detection skipped due to multiple extensions:", error);
     }
   }, [connect, connectors]);
+
+  // Reset local game state when wallet disconnects or when the connected address changes
+  useEffect(() => {
+    // Wallet disconnected or no address - always clear local state
+    if (!isConnected || !address) {
+      resetState();
+      previousAddressRef.current = undefined;
+      return;
+    }
+
+    const previousAddress = previousAddressRef.current;
+
+    // First connect
+    if (!previousAddress) {
+      previousAddressRef.current = address;
+      return;
+    }
+
+    // Address changed - clear previous user's state
+    if (previousAddress.toLowerCase() !== address.toLowerCase()) {
+      resetState();
+      previousAddressRef.current = address;
+    }
+  }, [address, isConnected, resetState]);
 
   return <>{children}</>;
 }

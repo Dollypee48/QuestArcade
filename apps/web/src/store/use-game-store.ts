@@ -80,6 +80,7 @@ type GameState = {
   notifications: { id: string; title: string; description: string; createdAt: string }[];
   claimedRewards: string[];
   updateProfile: (payload: Partial<Pick<GameState, "displayName" | "avatarUrl">>) => void;
+  resetState: () => void;
   addXp: (amount: number) => void;
   syncOnChainProfile: (payload: { xp: number; level: LevelTier }) => void;
   acceptQuest: (questId: string) => void;
@@ -248,6 +249,25 @@ export const useGameStore = create<GameState>()(
       notifications: [],
       claimedRewards: [],
       updateProfile: (payload) => set((state) => ({ ...state, ...payload })),
+      resetState: () =>
+        set(() => ({
+          displayName: "",
+          avatarUrl: "/avatars/default.png",
+          level: "Rookie",
+          xp: 0,
+          nextLevelXp: getNextLevelXp(0),
+          balance: 0,
+          lastSyncedOnChainBalance: 0,
+          quests: [],
+          progress: [],
+          streak: {
+            current: 0,
+            best: 0,
+            lastCompleted: undefined,
+          },
+          notifications: [],
+          claimedRewards: [],
+        })),
       addXp: (amount) =>
         set((state) => {
           const updatedXp = state.xp + amount;
