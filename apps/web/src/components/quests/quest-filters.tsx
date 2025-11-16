@@ -21,6 +21,7 @@ type QuestFiltersProps = {
 
 const difficulties = ["Easy", "Medium", "Hard", "Mythic"];
 const verifications = ["Photo", "Video", "GPS", "Proof of Work"];
+const DEFAULT_MAX_REWARD = 100_000;
 
 export function QuestFilters({
   location,
@@ -39,7 +40,7 @@ export function QuestFilters({
       Boolean(location) ||
       radius !== 10 ||
       rewardRange[0] !== 0 ||
-      rewardRange[1] !== 100 ||
+      rewardRange[1] !== DEFAULT_MAX_REWARD ||
       difficulty.length > 0 ||
       verification.length > 0,
     [location, radius, rewardRange, difficulty, verification]

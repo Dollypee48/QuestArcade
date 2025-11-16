@@ -1,0 +1,8 @@
+{
+  "QuestArcadeModule": {
+    "cUsdAddress": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+    "feeRecipient": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+    "platformFeeBps": 500
+  }
+}
+

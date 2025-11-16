@@ -1,0 +1,10 @@
+{
+  "MockStableTokenModule": {
+    "name": "Mock cUSD",
+    "symbol": "mcUSD",
+    "decimals": 18,
+    "recipients": ["0x7e6a38d86e4a655086218c1648999e509b40e391"],
+    "mintAmount": "500000000000000000000"
+  }
+}
+

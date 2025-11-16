@@ -9,6 +9,9 @@ import type { Quest } from "@/store/use-game-store";
 type QuestCardProps = {
   quest: Quest;
   onAccept?: (questId: string) => void;
+  isAccepting?: boolean;
+  showAcceptButton?: boolean;
+  hasAcceptedQuest?: boolean;
 };
 
 const difficultyColors: Record<Quest["difficulty"], string> = {
@@ -18,7 +21,7 @@ const difficultyColors: Record<Quest["difficulty"], string> = {
   Mythic: "bg-primary/30 text-primary-foreground",
 };
 
-export function QuestCard({ quest, onAccept }: QuestCardProps) {
+export function QuestCard({ quest, onAccept, isAccepting = false, showAcceptButton = true, hasAcceptedQuest = false }: QuestCardProps) {
   return (
     <motion.div
       layout
@@ -79,12 +82,15 @@ export function QuestCard({ quest, onAccept }: QuestCardProps) {
           <Button asChild variant="ghost" className="rounded-full border border-white/20">
             <Link href={`/quests/${quest.id}`}>View details</Link>
           </Button>
-          <Button
-            className="rounded-full"
-            onClick={() => onAccept?.(quest.id)}
-          >
-            Accept Quest
-          </Button>
+          {showAcceptButton && (
+            <Button
+              className="rounded-full"
+              onClick={() => onAccept?.(quest.id)}
+              disabled={isAccepting || hasAcceptedQuest}
+            >
+              {isAccepting ? "Accepting…" : hasAcceptedQuest ? "Quest accepted" : "Accept Quest"}
+            </Button>
+          )}
         </div>
       </div>
     </motion.div>

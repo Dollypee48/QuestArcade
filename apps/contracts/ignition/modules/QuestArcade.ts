@@ -19,7 +19,15 @@ const QuestArcadeModule = buildModule("QuestArcadeModule", (m) => {
     platformFeeBps,
   ]);
 
-  return { questArcade };
+  const questRegistry = m.contract("QuestRegistry");
+  const rewardsVault = m.contract("RewardsVault");
+  const reputation = m.contract("Reputation");
+
+  m.call(questRegistry, "setQuestArcade", [questArcade]);
+  m.call(rewardsVault, "setQuestArcade", [questArcade]);
+  m.call(reputation, "setQuestArcade", [questArcade]);
+
+  return { questArcade, questRegistry, rewardsVault, reputation };
 });
 
 export default QuestArcadeModule;

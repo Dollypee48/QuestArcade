@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Wallet, Clock, Shield, PlusCircle } from "lucide-react";
 
@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { useQuestActions } from "@/hooks/use-quest-actions";
+import { useQuestArcadeSync } from "@/hooks/use-quest-arcade";
+import { MintCUSDButton } from "@/components/mint-cusd-button";
 
 const proofTypes = ["Photo", "Video", "GPS", "Proof of Work"];
 const difficulties = ["Easy", "Medium", "Hard", "Mythic"];
@@ -20,6 +23,58 @@ export default function CreateTaskPage() {
   const [location, setLocation] = useState("");
   const [selectedProof, setSelectedProof] = useState("Photo");
   const [difficulty, setDifficulty] = useState("Medium");
+  const [timeLimitHours, setTimeLimitHours] = useState<number | undefined>(24);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const { refresh } = useQuestArcadeSync();
+  const { createQuest, states } = useQuestActions({ onSettled: refresh });
+
+  const isPublishing = states.create.status === "pending";
+  const publishError = states.create.status === "error" ? states.create.error : null;
+
+  const canSubmit = useMemo(() => {
+    if (!title.trim()) return false;
+    if (!description.trim()) return false;
+    if (!Number.isFinite(reward) || reward <= 0) return false;
+    return true;
+  }, [title, description, reward]);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setFormError(null);
+
+    if (!canSubmit) {
+      setFormError("Fill out the required fields before publishing.");
+      return;
+    }
+
+    try {
+      const augmentedDescription = location
+        ? `${description.trim()}\n\nLocation: ${location.trim()}`
+        : description.trim();
+      await createQuest({
+        title: title.trim(),
+        description: augmentedDescription,
+        reward,
+        proofType: selectedProof,
+        timeLimitHours,
+      });
+
+      setTitle("");
+      setDescription("");
+      setReward(10);
+      setLocation("");
+      setSelectedProof("Photo");
+      setDifficulty("Medium");
+      setTimeLimitHours(24);
+    } catch (error) {
+      if (error instanceof Error) {
+        setFormError(error.message);
+      } else {
+        setFormError("Publishing failed. Please try again.");
+      }
+    }
+  };
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-12">
@@ -39,6 +94,7 @@ export default function CreateTaskPage() {
         className="glass-card grid gap-6 rounded-[32px] border border-white/10 bg-gradient-card p-10 shadow-glow md:grid-cols-[1.3fr_0.7fr]"
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
+        onSubmit={handleSubmit}
       >
         <div className="space-y-5">
           <div className="space-y-2">
@@ -124,14 +180,39 @@ export default function CreateTaskPage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="quest-deadline">Time limit (hours)</Label>
-            <Input id="quest-deadline" type="number" min={1} placeholder="e.g. 24" />
+            <Input
+              id="quest-deadline"
+              type="number"
+              min={1}
+              placeholder="e.g. 24"
+              value={timeLimitHours ?? ""}
+              onChange={(event) => {
+                const numeric = Number(event.target.value);
+                setTimeLimitHours(Number.isFinite(numeric) && numeric > 0 ? numeric : undefined);
+              }}
+            />
           </div>
-          <Button className="mt-4 rounded-full px-6 py-3 text-sm font-semibold">
-            Publish quest on-chain
+          {formError && (
+            <p className="text-sm text-destructive">
+              {formError}
+            </p>
+          )}
+          {publishError && (
+            <p className="text-sm text-destructive">
+              {publishError}
+            </p>
+          )}
+          <Button
+            type="submit"
+            className="mt-4 rounded-full px-6 py-3 text-sm font-semibold"
+            disabled={isPublishing || !canSubmit}
+          >
+            {isPublishing ? "Publishing…" : "Publish quest on-chain"}
           </Button>
         </div>
 
         <div className="space-y-6">
+          <MintCUSDButton />
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-white/70">
             <h2 className="text-lg font-semibold text-white">Quest funding summary</h2>
             <div className="mt-4 space-y-3 text-xs text-white/60">

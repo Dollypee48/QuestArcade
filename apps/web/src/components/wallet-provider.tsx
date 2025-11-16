@@ -5,8 +5,8 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { injectedWallet } from "@rainbow-me/rainbowkit/wallets";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { WagmiProvider, createConfig, http, useConnect } from "wagmi";
-import { celo, celoAlfajores } from "wagmi/chains";
+import { WagmiProvider, createConfig, http, fallback, useConnect } from "wagmi";
+import { celo, celoAlfajores, celoSepolia } from "wagmi/chains";
 
 const connectors = connectorsForWallets(
   [
@@ -21,12 +21,33 @@ const connectors = connectorsForWallets(
   }
 );
 
+// Create transports with fallback RPCs and better error handling
+const createHttpTransport = (rpcUrl: string) => {
+  return http(rpcUrl, {
+    retryCount: 2,
+    retryDelay: 1000,
+    timeout: 15000,
+    fetchOptions: {
+      cache: 'no-store',
+    },
+  });
+};
+
 const wagmiConfig = createConfig({
-  chains: [celo, celoAlfajores],
+  chains: [celo, celoAlfajores, celoSepolia],
   connectors,
   transports: {
-    [celo.id]: http(),
-    [celoAlfajores.id]: http(),
+    [celo.id]: createHttpTransport('https://forno.celo.org'),
+    [celoAlfajores.id]: createHttpTransport('https://alfajores-forno.celo-testnet.org'),
+    // Use fallback for Celo Sepolia to handle network issues
+    [celoSepolia.id]: fallback([
+      createHttpTransport('https://forno.celo-sepolia.celo-testnet.org'),
+      createHttpTransport('https://rpc.ankr.com/celo_sepolia'),
+      createHttpTransport('https://1rpc.io/celo/sepolia'),
+    ], {
+      rank: false, // Try in order
+      retryCount: 2,
+    }),
   },
   ssr: true,
 });
@@ -44,13 +65,24 @@ function WalletProviderInner({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check if the app is running inside MiniPay
-    const { ethereum } = window as MiniPayWindow;
-    if (ethereum?.isMiniPay) {
-      // Find the injected connector, which is what MiniPay uses
-      const injectedConnector = connectors.find((c) => c.id === "injected");
-      if (injectedConnector) {
-        connect({ connector: injectedConnector });
+    // Handle wallet conflicts gracefully
+    try {
+      const { ethereum } = window as MiniPayWindow;
+      if (ethereum?.isMiniPay) {
+        // Find the injected connector, which is what MiniPay uses
+        const injectedConnector = connectors.find((c) => c.id === "injected");
+        if (injectedConnector) {
+          // Use setTimeout to avoid conflicts with other wallet initialization
+          setTimeout(() => {
+            void connect({ connector: injectedConnector }).catch((error) => {
+              console.warn("Failed to auto-connect MiniPay:", error);
+            });
+          }, 100);
+        }
       }
+    } catch (error) {
+      // Silently handle wallet conflicts - user can connect manually
+      console.debug("Wallet detection skipped due to multiple extensions:", error);
     }
   }, [connect, connectors]);
 

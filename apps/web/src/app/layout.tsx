@@ -3,6 +3,8 @@ import "./globals.css";
 
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
+import { QuestArcadeSyncProvider } from "@/components/providers/quest-arcade-sync";
+import { ToastProvider } from "@/components/providers/toast-provider";
 import { WalletProvider } from "@/components/wallet-provider";
 
 export const metadata: Metadata = {
@@ -19,6 +21,8 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-gradient-secondary font-sans">
         <WalletProvider>
+          <QuestArcadeSyncProvider />
+          <ToastProvider />
           <div className="relative flex min-h-screen flex-col overflow-hidden">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,94,169,0.22),_transparent_55%)]" />
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(45,214,181,0.18),_transparent_50%)]" />

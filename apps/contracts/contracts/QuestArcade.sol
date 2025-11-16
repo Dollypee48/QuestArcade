@@ -147,7 +147,7 @@ contract QuestArcade is Ownable, ReentrancyGuard {
         VerificationType verificationType,
         uint64 deadline
     ) external nonReentrant returns (uint256 questId) {
-        if (!approvedCreators[msg.sender]) revert QuestArcade__CreatorNotApproved();
+        // Removed approvedCreators check - any wallet user can now create quests
         if (bytes(title).length == 0) revert QuestArcade__InvalidQuest();
         if (rewardAmount == 0) revert QuestArcade__InvalidQuest();
         if (deadline <= block.timestamp) revert QuestArcade__DeadlineElapsed();

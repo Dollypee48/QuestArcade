@@ -1,3 +1,6 @@
 {
-  "QuestArcadeModule#QuestArcade": "0x9d9e0310b65DE1c4e5b25Fa665d24d11787f0e8a"
+  "QuestArcadeModule#QuestArcade": "0x0e2767305AD4bCE3C5deA1422c2da88D2345b663",
+  "QuestArcadeModule#QuestRegistry": "0x5E105dA0B4F15311F604eb0e34A3f46cB243BDB4",
+  "QuestArcadeModule#Reputation": "0xB9eD2640Bba53aB24e112Eb1C4916dc21fFF9EB6",
+  "QuestArcadeModule#RewardsVault": "0x8C5cb0B0aB1bf69884a179A1F1279098996393d6"
 }

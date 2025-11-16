@@ -11,14 +11,15 @@ import {
   Map,
   PlayCircle,
   Rocket,
+  CheckCircle2,
 } from "lucide-react";
+import { useAccount } from "wagmi";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { UserBalance } from "@/components/user-balance";
-import { Progress } from "@/components/ui/progress";
 import { useGameStore } from "@/store/use-game-store";
+import { useQuestArcadeSync } from "@/hooks/use-quest-arcade";
 
 const featureCards = [
   {
@@ -59,61 +60,113 @@ const howItWorks = [
   },
 ];
 
-function HeroMetrics() {
-  const { xp, nextLevelXp, level, balance, streak } = useGameStore();
-  const progress = Math.min(Math.round((xp / nextLevelXp) * 100), 100);
-  const lastCompleted = streak.lastCompleted ? new Date(streak.lastCompleted) : null;
-  const lastCompletedLabel = lastCompleted ? lastCompleted.toLocaleDateString() : "No quests yet";
+function FeaturedQuests() {
+  const quests = useGameStore((state) => state.quests);
+  const { refresh } = useQuestArcadeSync();
+  
+  // Get available quests (active/open status)
+  const availableQuests = quests.filter(
+    (quest) =>
+      quest.onChainState === "active" ||
+      quest.onChainState === "draft" ||
+      (!quest.onChainState && quest.id)
+  );
+
+  // Get top 3 quests by reward (or all if less than 3)
+  const featuredQuests = availableQuests
+    .sort((a, b) => b.reward - a.reward)
+    .slice(0, 3);
+
+  // Don't render anything if there are no quests
+  if (featuredQuests.length === 0) {
+    return null;
+  }
+
+  const getDifficultyIcon = (difficulty: string) => {
+    switch (difficulty) {
+      case "Hard":
+      case "Mythic":
+        return Trophy;
+      case "Medium":
+        return Map;
+      default:
+        return Sparkles;
+    }
+  };
 
   return (
-    <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      <Card className="glass-card border-white/10 bg-white/10 p-6 shadow-glow">
-        <CardContent className="p-0">
-          <p className="text-xs uppercase tracking-widest text-white/60">Current Tier</p>
-          <p className="mt-2 text-2xl font-semibold text-white">{level}</p>
-          <div className="mt-4 space-y-3">
-            <div className="flex items-center justify-between text-xs text-white/70">
-              <span>{xp} XP</span>
-              <span>{nextLevelXp} XP</span>
-            </div>
-            <Progress value={progress} />
-            <p className="text-xs text-white/60">Earn 5 more quests to reach the next league.</p>
-          </div>
-        </CardContent>
-      </Card>
-      <Card className="glass-card border-white/10 bg-white/10 p-6 shadow-glow-sm">
-        <CardContent className="flex h-full flex-col justify-between p-0">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-white/60">Wallet balance</p>
-            <p className="mt-2 text-3xl font-semibold text-white">cUSD {balance.toFixed(2)}</p>
-          </div>
-          <UserBalance />
-        </CardContent>
-      </Card>
-      <Card className="glass-card border-white/10 bg-white/10 p-6 shadow-glow-sm">
-        <CardContent className="p-0">
-          <p className="text-xs uppercase tracking-widest text-white/60">Daily streak</p>
-          <p className="mt-2 text-3xl font-semibold text-white">{streak.current} days</p>
-          <p className="mt-1 text-xs text-white/60">
-            Best streak: {streak.best} days • last quest {lastCompletedLabel}
-          </p>
-        </CardContent>
-      </Card>
-      <Card className="glass-card border-white/10 bg-white/10 p-6 shadow-glow-sm">
-        <CardContent className="p-0">
-          <p className="text-xs uppercase tracking-widest text-white/60">Season perks</p>
-          <ul className="mt-3 space-y-2 text-sm text-white/70">
-            <li>• Boosted cUSD rewards</li>
-            <li>• Gold-tier referral bonuses</li>
-            <li>• VIP quest drops every Friday</li>
-          </ul>
-        </CardContent>
-      </Card>
+    <div className="mt-12">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <Badge variant="accent" className="mb-2 gap-2">
+            <Rocket className="h-3.5 w-3.5" />
+            Available Quests
+          </Badge>
+          <h3 className="text-2xl font-semibold text-white">Featured Quests</h3>
+          <p className="mt-1 text-sm text-white/70">Top quests with highest rewards</p>
+        </div>
+        <Button asChild variant="ghost" className="gap-2 text-white/80 hover:text-white">
+          <Link href="/quests">
+            View All
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {featuredQuests.map((quest, index) => {
+          const Icon = getDifficultyIcon(quest.difficulty);
+          return (
+            <motion.div
+              key={quest.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+            >
+              <Card className="glass-card group h-full border-white/10 bg-gradient-card p-6 shadow-glow-sm transition-all hover:border-white/20 hover:shadow-glow">
+                <CardContent className="p-0">
+                  <div className="mb-4 flex items-start justify-between">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-primary/20">
+                      <Icon className="h-6 w-6 text-secondary" />
+                    </div>
+                    <Badge variant="outline" className="border-white/20 text-xs">
+                      {quest.difficulty}
+                    </Badge>
+                  </div>
+                  <h4 className="mb-2 text-lg font-semibold text-white">{quest.title}</h4>
+                  <p className="mb-3 line-clamp-2 text-sm text-white/70">{quest.description}</p>
+                  <div className="space-y-2 text-sm text-white/70">
+                    {quest.location && (
+                      <div className="flex items-center gap-2">
+                        <Map className="h-4 w-4" />
+                        <span>{quest.location}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <Wallet className="h-4 w-4" />
+                      <span className="font-semibold text-secondary">cUSD {quest.reward.toFixed(2)}</span>
+                    </div>
+                  </div>
+                  <Button
+                    asChild
+                    className="mt-4 w-full rounded-full"
+                    variant="outline"
+                  >
+                    <Link href={`/quests/${quest.id}`}>View Quest</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
 export default function Home() {
+  const { address, isConnected } = useAccount();
+  const truncatedAddress = address ? `${address.slice(0, 6)}…${address.slice(-4)}` : null;
+
   return (
 <main className="flex-1">
       <section className="relative overflow-hidden pt-20 pb-24 sm:pt-24">
@@ -148,9 +201,11 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <Button size="lg" className="group gap-2 rounded-full px-8 py-6 text-base font-semibold">
-              Get Started
-              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+            <Button asChild size="lg" className="group gap-2 rounded-full px-8 py-6 text-base font-semibold">
+              <Link href="/quests">
+                Get Started
+                <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+              </Link>
             </Button>
             <Button
               asChild
@@ -163,18 +218,31 @@ export default function Home() {
                 <PlayCircle className="h-4 w-4" />
               </Link>
             </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="gap-2 rounded-full border-white/20 bg-white/10 px-8 py-6 text-base text-white/85 hover:bg-white/20"
-            >
-              <Link href="/login">
-                Connect Wallet
-                <Wallet className="h-4 w-4" />
-              </Link>
-            </Button>
+            {isConnected && address ? (
+              <Button
+                asChild
+                variant="outline"
+                className="gap-2 rounded-full border-green-500/30 bg-green-500/10 px-8 py-6 text-base text-green-400 hover:bg-green-500/20"
+              >
+                <Link href="/dashboard">
+                  <CheckCircle2 className="h-4 w-4" />
+                  {truncatedAddress}
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                asChild
+                variant="outline"
+                className="gap-2 rounded-full border-white/20 bg-white/10 px-8 py-6 text-base text-white/85 hover:bg-white/20"
+              >
+                <Link href="/login">
+                  Connect Wallet
+                  <Wallet className="h-4 w-4" />
+                </Link>
+              </Button>
+            )}
           </motion.div>
-          <HeroMetrics />
+          <FeaturedQuests />
         </div>
         <div className="absolute inset-x-0 bottom-0 h-96 bg-[radial-gradient(circle_at_top,_rgba(124,58,237,0.35),_transparent_65%)]" />
       </section>
@@ -210,39 +278,28 @@ export default function Home() {
               </div>
             </div>
             <motion.div
-              className="glass-card relative flex min-h-[420px] flex-1 flex-col justify-between overflow-hidden rounded-[32px] border border-white/10 bg-gradient-secondary p-8 shadow-glow"
+              className="glass-card relative flex min-h-[420px] flex-1 flex-col justify-center items-center overflow-hidden rounded-[32px] border border-white/10 bg-gradient-secondary p-8 shadow-glow"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.6 }}
             >
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,197,66,0.25),_transparent_70%)]" />
-              <div className="relative z-10 space-y-3">
-                <div className="flex items-center justify-between">
-                  <Badge variant="primary" className="gap-2">
-                    <Shield className="h-4 w-4" />
-                    Featured Quest
-                  </Badge>
-                  <span className="text-sm text-white/70">Reward: cUSD 35</span>
-                </div>
+              <div className="relative z-10 text-center space-y-4">
+                <Badge variant="primary" className="gap-2">
+                  <Shield className="h-4 w-4" />
+                  Get Started
+                </Badge>
                 <h3 className="text-2xl font-semibold text-white">
-                  Campus Quest: Onboard 10 Students
+                  Ready to create your first quest?
                 </h3>
-                <p className="text-sm text-white/75">
-                  Teach students how to activate MiniPay, help them download the QuestArcade mobile
-                  app, and submit proof with a group selfie.
+                <p className="text-sm text-white/75 max-w-md mx-auto">
+                  Launch your mission, set rewards, and start accepting submissions from questers. 
+                  All quests are backed by smart contracts for secure, transparent transactions.
                 </p>
-                <div className="grid gap-3 text-xs text-white/70 sm:grid-cols-2">
-                  <p>Location: University of Lagos, Nigeria</p>
-                  <p>Verification: Video + Attendance</p>
-                  <p>Difficulty: Hard</p>
-                  <p>Duration: 12 hours</p>
-                </div>
-              </div>
-              <div className="relative z-10">
-                <Button asChild className="w-full rounded-full">
-                  <Link href="/quests/quest-campus-02">Preview Quest</Link>
-          </Button>
+                <Button asChild className="mt-6 rounded-full">
+                  <Link href="/create-task">Create Quest</Link>
+                </Button>
               </div>
             </motion.div>
           </div>

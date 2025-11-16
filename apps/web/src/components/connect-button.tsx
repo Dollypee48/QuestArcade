@@ -23,5 +23,5 @@ export function ConnectButton() {
     return null;
   }
 
-  return <RainbowKitConnectButton />;
+  return <RainbowKitConnectButton showBalance={false} />;
 }
