@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
-import { parseUnits, formatUnits } from "viem";
+import { parseUnits } from "viem";
 import { erc20Abi } from "viem";
 import { Button } from "@/components/ui/button";
 import { CHAIN_CONFIG } from "@/config/contractConfig";
@@ -52,10 +52,6 @@ export function MintCUSDButton() {
 
     const checkMintSupport = async () => {
       try {
-        // Try to read the mint function signature to see if it exists
-        // We'll use a low-level call to check if the function exists
-        const mintFunctionSignature = "0x40c10f19"; // mint(address,uint256)
-        
         // Try to simulate a call to see if the function exists
         await publicClient.simulateContract({
           address: tokenAddress,
@@ -66,7 +62,7 @@ export function MintCUSDButton() {
         });
         
         setSupportsMinting(true);
-      } catch (err) {
+      } catch {
         // If simulation fails, the function likely doesn't exist
         setSupportsMinting(false);
       }
@@ -159,8 +155,9 @@ export function MintCUSDButton() {
       
       setSuccess(true);
       setTimeout(() => setSuccess(false), 5000);
-    } catch (err: any) {
-      const errorMsg = err?.message || "Failed to mint cUSD";
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string };
+      const errorMsg = errorObj?.message || "Failed to mint cUSD";
       console.error("Mint error:", err);
       
       if (
@@ -170,8 +167,8 @@ export function MintCUSDButton() {
         errorMsg.includes("not found")
       ) {
         setError(
-          "This token contract doesn't support public minting. " +
-          "Please ensure you're using a MockERC20 contract on a test network. " +
+          "This token contract doesn&apos;t support public minting. " +
+          "Please ensure you&apos;re using a MockERC20 contract on a test network. " +
           "The contract at this address may not have a mint function."
         );
       } else {
@@ -202,7 +199,7 @@ export function MintCUSDButton() {
           <h3 className="text-lg font-semibold text-white">Minting Not Available</h3>
         </div>
         <p className="mb-4 text-sm text-white/70">
-          The token contract at this address doesn't support public minting. This feature requires a MockERC20 contract with a public mint function.
+          The token contract at this address doesn&apos;t support public minting. This feature requires a MockERC20 contract with a public mint function.
         </p>
         <div className="rounded-lg border border-white/10 bg-white/5 p-4 text-xs text-white/60">
           <p className="mb-2 font-semibold text-white/80">To enable minting:</p>

@@ -237,9 +237,11 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
             args: [title, description, rewardAmount, verificationType, deadlineSeconds],
           });
           console.log("Quest creation: Simulation successful, sending transaction...");
-        } catch (simError: any) {
+        } catch (simError: unknown) {
           console.error("Quest creation: Simulation failed BEFORE sending transaction:", simError);
-          const errorMessage = simError?.shortMessage || simError?.message || simError?.details || JSON.stringify(simError);
+          const sim = simError as { shortMessage?: string; message?: string; details?: string };
+          const errorMessage =
+            sim?.shortMessage || sim?.message || sim?.details || JSON.stringify(simError);
           console.error("Quest creation: Full simulation error:", errorMessage);
           
           // Check if it's a token mismatch issue
@@ -258,7 +260,7 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
                   `Please update NEXT_PUBLIC_STABLE_TOKEN_ADDRESS environment variable to match the contract deployment.`
                 );
               }
-            } catch (checkError) {
+            } catch {
               // If we can't check, just throw the generic error
             }
             
@@ -318,17 +320,18 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
                   functionName: "createQuest",
                   args: [title, description, rewardAmount, verificationType, deadlineSeconds],
                 });
-              } catch (simError: any) {
+            } catch (simError: unknown) {
                 console.error("Quest creation: Simulation error details:", {
                   error: simError,
-                  message: simError?.message,
-                  shortMessage: simError?.shortMessage,
-                  cause: simError?.cause,
-                  details: simError?.details,
+                message: (simError as { message?: string })?.message,
+                shortMessage: (simError as { shortMessage?: string })?.shortMessage,
+                cause: (simError as { cause?: unknown })?.cause,
+                details: (simError as { details?: string })?.details,
                 });
                 
-                const errorMessage = simError?.shortMessage || simError?.message || simError?.details || "Unknown error";
-                const fullError = JSON.stringify(simError, null, 2);
+              const sim = simError as { shortMessage?: string; message?: string; details?: string };
+              const errorMessage = sim?.shortMessage || sim?.message || sim?.details || "Unknown error";
+              const fullError = JSON.stringify(simError, null, 2);
                 console.error("Quest creation: Full error object:", fullError);
                 
                 // Map common errors to user-friendly messages
@@ -358,10 +361,12 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
               
               throw new Error("Transaction was reverted. Please check the console for details.");
             }
-          } catch (getTxError: any) {
-            console.error("Quest creation: Error getting transaction details:", getTxError);
+        } catch (getTxError: unknown) {
+          console.error("Quest creation: Error getting transaction details:", getTxError);
             // If we can't get details, check if it's a simulation error
-            const errorMsg = getTxError?.message || error?.message || "Unknown error";
+          const txErr = getTxError as { message?: string };
+          const mainErr = error as { message?: string } | undefined;
+          const errorMsg = txErr?.message || mainErr?.message || "Unknown error";
             if (errorMsg.includes("revert") || errorMsg.includes("execution reverted")) {
               throw new Error(`Transaction reverted: ${errorMsg}`);
             }
@@ -390,8 +395,8 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
           if (newCounter === 0n) {
             console.warn("Quest creation: Quest counter is still 0 after creation. This may indicate the transaction didn't execute properly.");
           }
-        } catch (error) {
-          console.warn("Quest creation: Could not verify quest counter:", error);
+        } catch {
+          console.warn("Quest creation: Could not verify quest counter");
         }
 
         // Small delay to ensure blockchain state is updated
@@ -576,7 +581,6 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
           
           const currentReward = currentQuest.rewardAmount;
           if (rewardAmount > currentReward) {
-            const additional = rewardAmount - currentReward;
             await writeContractAsync({
               account: address,
               address: stableTokenAddress!,
@@ -585,7 +589,7 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
               args: [questArcadeAddress!, rewardAmount],
             });
           }
-        } catch (error) {
+        } catch {
           // If we can't read current quest, just approve the full amount
           await writeContractAsync({
             account: address,

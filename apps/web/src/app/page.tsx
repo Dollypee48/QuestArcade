@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useGameStore } from "@/store/use-game-store";
-import { useQuestArcadeSync } from "@/hooks/use-quest-arcade";
 
 const featureCards = [
   {
@@ -62,7 +61,6 @@ const howItWorks = [
 
 function FeaturedQuests() {
   const quests = useGameStore((state) => state.quests);
-  const { refresh } = useQuestArcadeSync();
   
   // Get available quests (active/open status)
   const availableQuests = quests.filter(

@@ -209,7 +209,6 @@ function NetworkSwitcher() {
 export function Navbar() {
   const pathname = usePathname();
   const { address, isConnected } = useAccount();
-  const chainId = useChainId();
   const { isMiniPay, isReady } = useMiniPay();
 
   const renderNavLinks = (orientation: "horizontal" | "vertical") =>

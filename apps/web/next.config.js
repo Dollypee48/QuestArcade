@@ -39,18 +39,16 @@ const nextConfig = {
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
     
     // Fix for MetaMask SDK trying to import React Native modules in web context
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        '@react-native-async-storage/async-storage': false,
-      };
-      
-      // Add alias to mock React Native modules
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@react-native-async-storage/async-storage': false,
-      };
-    }
+    // Provide a shim for React Native async-storage used by MetaMask SDK in browser builds
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      '@react-native-async-storage/async-storage': require.resolve('./src/shims/async-storage.ts'),
+    };
+    
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@react-native-async-storage/async-storage': require.resolve('./src/shims/async-storage.ts'),
+    };
     
     return config;
   },

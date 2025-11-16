@@ -505,7 +505,7 @@ export const useGameStore = create<GameState>()(
         })),
       setProgress: (progress) => set(() => ({ progress })),
       setBalance: (balance, isOnChainSync = false, onChainBalance) => 
-        set((state) => {
+        set(() => {
           if (isOnChainSync && onChainBalance !== undefined) {
             // When syncing from chain, update balance and store the actual on-chain balance
             return { 

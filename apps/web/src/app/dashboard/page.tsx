@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useMemo, useState, useEffect, useRef } from "react";
-import { Flame, Trophy, Wallet, Map, ArrowRight, Crown, Bell, Coins, CheckCircle2, XCircle, Clock, History } from "lucide-react";
+import { Flame, Trophy, Map, ArrowRight, Crown, Bell, Coins, CheckCircle2, XCircle, Clock, History } from "lucide-react";
 import { useAccount } from "wagmi";
 
 import { Button } from "@/components/ui/button";
@@ -72,13 +72,10 @@ export default function DashboardPage() {
   const availableQuests = quests.filter(
     (quest) => !progress.find((item) => item.questId === quest.id && item.status !== "available")
   );
-  const submittedQuestProgress = progress.filter((item) => item.status === "submitted");
   const myCreatedQuests = useMemo(() => {
     if (!address) return [];
     return quests.filter((quest) => quest.creator?.toLowerCase() === address.toLowerCase());
   }, [address, quests]);
-  const submissionsForMyQuests = myCreatedQuests.filter((quest) => quest.onChainState === "submitted");
-  
   // Creator: Active quests (Open, Accepted, Submitted - not yet finalized)
   const myActiveQuests = useMemo(() => {
     if (!address) return [];
@@ -588,7 +585,7 @@ export default function DashboardPage() {
                     <Clock className="h-4 w-4 text-secondary" />
                     In progress
                   </h2>
-                  <p className="text-xs text-white/60">Quests you're currently working on or have submitted.</p>
+                  <p className="text-xs text-white/60">Quests you&apos;re currently working on or have submitted.</p>
                 </div>
                 <Badge variant="accent" className="text-[10px] uppercase tracking-widest">
                   {myInProgressQuests.length} active
@@ -658,7 +655,7 @@ export default function DashboardPage() {
                               await claimReward(quest.id);
                               // Mark quest as processed to prevent double XP calculation
                               xpCalculatedRef.current.add(quest.id);
-                            } catch (error) {
+                            } catch {
                               // Error handling is done in the hook
                             }
                           }}

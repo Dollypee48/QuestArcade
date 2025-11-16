@@ -87,10 +87,11 @@ export function MintTestToken() {
       
       setSuccess(true);
       setTimeout(() => setSuccess(false), 5000);
-    } catch (err: any) {
-      const errorMsg = err?.message || "Failed to mint tokens";
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string };
+      const errorMsg = errorObj?.message || "Failed to mint tokens";
       if (errorMsg.includes("mint") || errorMsg.includes("function")) {
-        setError("This token doesn't support minting. You'll need to get tokens another way.");
+        setError("This token doesn&apos;t support minting. You&apos;ll need to get tokens another way.");
       } else {
         setError(errorMsg);
       }

@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { MapPin, Wallet, Clock, Shield, ArrowLeft } from "lucide-react";
+import { Wallet, Clock, Shield, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -150,7 +150,7 @@ export default function EditQuestPage() {
         </Badge>
         <h1 className="text-4xl font-semibold text-white">Edit Quest</h1>
         <p className="max-w-2xl text-sm text-white/70">
-          Update your quest details. You can only edit quests that are still open and haven't been accepted yet.
+          Update your quest details. You can only edit quests that are still open and haven&apos;t been accepted yet.
         </p>
       </div>
 

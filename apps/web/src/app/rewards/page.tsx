@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Gift, Star, Zap, ShoppingBag, Wallet, CheckCircle2, Sparkles, Shield, Award, TrendingUp, Package } from "lucide-react";
+import { Gift, Star, Zap, ShoppingBag, Wallet, CheckCircle2, Sparkles, Award, TrendingUp, Package } from "lucide-react";
 import { useAccount } from "wagmi";
 import Link from "next/link";
 
