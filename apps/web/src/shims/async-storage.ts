@@ -3,9 +3,9 @@
 // Exporting a minimal mock avoids module resolution errors.
 
 const AsyncStorage = {
-  getItem: async (_key: string): Promise<string | null> => null,
-  setItem: async (_key: string, _value: string): Promise<void> => {},
-  removeItem: async (_key: string): Promise<void> => {},
+  getItem: async (): Promise<string | null> => null,
+  setItem: async (): Promise<void> => {},
+  removeItem: async (): Promise<void> => {},
   clear: async (): Promise<void> => {},
 };
 

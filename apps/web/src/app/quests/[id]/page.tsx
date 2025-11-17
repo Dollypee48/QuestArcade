@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
@@ -97,9 +98,12 @@ export default function QuestDetailsPage() {
   }, [questProgress]);
 
   const hasSubmittedProof = useMemo(() => {
-    if (!questProgress) return false;
-    return ["submitted", "completed"].includes(questProgress.status) || quest.onChainState === "submitted";
-  }, [questProgress, quest?.onChainState]);
+    if (!quest || !questProgress) return false;
+    return (
+      ["submitted", "completed"].includes(questProgress.status) ||
+      quest.onChainState === "submitted"
+    );
+  }, [quest, questProgress]);
 
   // Check if current user is the quest creator and quest is still editable (Open status)
   const isCreator = useMemo(() => {
@@ -247,14 +251,23 @@ export default function QuestDetailsPage() {
             {(isCompleted || isRejected || isVerified) && (
               <div className="mt-3">
                 <Badge
-                  variant={isCompleted || (isVerified && !quest.rewardClaimed) ? "accent" : isRejected ? "destructive" : "outline"}
-                  className="text-[10px] uppercase tracking-widest"
+                  variant={isCompleted || (isVerified && !quest?.rewardClaimed) ? "accent" : "default"}
+                  className={`text-[10px] uppercase tracking-widest ${
+                    isRejected ? "border border-destructive/40 text-destructive" : ""
+                  }`}
                 >
-                  {isCompleted ? "Completed" : isVerified ? "Verified" : isRejected ? "Rejected" : quest.onChainState}
+                  {isCompleted
+                    ? "Completed"
+                    : isVerified
+                      ? "Verified"
+                      : isRejected
+                        ? "Rejected"
+                        : quest?.onChainState}
                 </Badge>
                 {isCompleted && (
                   <p className="mt-2 text-xs text-white/60">
-                    This quest has been completed and rewards have been claimed. This is a read-only view of the quest history.
+                    This quest has been completed and rewards have been claimed. This is a read-only view of the
+                    quest history.
                   </p>
                 )}
                 {isRejected && (
@@ -545,9 +558,11 @@ export default function QuestDetailsPage() {
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
                 {proofMediaType === "image" && quest?.proof?.url && !imageError ? (
-                  <img
+                  <Image
                     src={quest.proof.url}
                     alt="Submitted proof preview"
+                    width={800}
+                    height={450}
                     className="h-64 w-full rounded-xl object-cover"
                     onError={() => setImageError(true)}
                   />

@@ -213,18 +213,156 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
           throw error;
         }
 
-        console.log("Quest creation: Approving token transfer...");
-        const approveHash = await writeContractAsync({
-          account: address,
+        // Check current allowance first
+        console.log("Quest creation: Checking current allowance...");
+        const currentAllowance = await publicClient!.readContract({
           address: stableTokenAddress!,
           abi: erc20Abi,
-          functionName: "approve",
-          args: [questArcadeAddress!, rewardAmount],
-        });
-        console.log("Quest creation: Approval transaction hash:", approveHash);
+          functionName: "allowance",
+          args: [address!, questArcadeAddress!],
+        }) as bigint;
         
-        const approveReceipt = await publicClient!.waitForTransactionReceipt({ hash: approveHash });
-        console.log("Quest creation: Approval confirmed in block:", approveReceipt.blockNumber);
+        console.log("Quest creation: Current allowance:", {
+          raw: currentAllowance.toString(),
+          formatted: formatUnits(currentAllowance, STABLE_DECIMALS),
+          required: formatUnits(rewardAmount, STABLE_DECIMALS),
+        });
+
+        // Only approve if current allowance is insufficient
+        if (currentAllowance < rewardAmount) {
+          // Some tokens (like USDC) require resetting to 0 first if there's an existing approval
+          if (currentAllowance > 0n) {
+            console.log("Quest creation: Resetting approval to 0 first (required by some tokens)...");
+            const resetHash = await writeContractAsync({
+              account: address,
+              address: stableTokenAddress!,
+              abi: erc20Abi,
+              functionName: "approve",
+              args: [questArcadeAddress!, 0n],
+            });
+            const resetReceipt = await publicClient!.waitForTransactionReceipt({ hash: resetHash });
+            
+            if (resetReceipt.status === "reverted") {
+              throw new Error("Failed to reset approval. The transaction was reverted. Please try again.");
+            }
+            console.log("Quest creation: Approval reset confirmed");
+          }
+
+          // Retry approval up to 3 times
+          let approvalSuccess = false;
+          let lastError: Error | null = null;
+          const maxRetries = 3;
+          
+          for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+              console.log(`Quest creation: Approving token transfer (attempt ${attempt}/${maxRetries})...`);
+              
+              // Simulate the approval first to catch errors early
+              try {
+                await publicClient!.simulateContract({
+                  account: address,
+                  address: stableTokenAddress!,
+                  abi: erc20Abi,
+                  functionName: "approve",
+                  args: [questArcadeAddress!, rewardAmount],
+                });
+                console.log("Quest creation: Approval simulation successful");
+              } catch (simError: unknown) {
+                const simMsg = simError instanceof Error ? simError.message : String(simError);
+                console.error("Quest creation: Approval simulation failed:", simMsg);
+                throw new Error(`Approval will fail: ${simMsg}. Please check your token balance and the token contract.`);
+              }
+              
+              const approveHash = await writeContractAsync({
+                account: address,
+                address: stableTokenAddress!,
+                abi: erc20Abi,
+                functionName: "approve",
+                args: [questArcadeAddress!, rewardAmount],
+              });
+              console.log("Quest creation: Approval transaction hash:", approveHash);
+              
+              const approveReceipt = await publicClient!.waitForTransactionReceipt({ 
+                hash: approveHash,
+                confirmations: 1,
+              });
+              
+              // Check if transaction was reverted
+              if (approveReceipt.status === "reverted") {
+                throw new Error("Approval transaction was reverted. Please check your wallet for details.");
+              }
+              
+              console.log("Quest creation: Approval confirmed in block:", approveReceipt.blockNumber);
+
+              // Wait a bit for state to update (some networks need a moment)
+              await new Promise(resolve => setTimeout(resolve, 1000));
+
+              // Verify the allowance was set correctly - retry reading a few times
+              let newAllowance = 0n;
+              for (let readAttempt = 0; readAttempt < 5; readAttempt++) {
+                newAllowance = await publicClient!.readContract({
+                  address: stableTokenAddress!,
+                  abi: erc20Abi,
+                  functionName: "allowance",
+                  args: [address!, questArcadeAddress!],
+                }) as bigint;
+                
+                if (newAllowance >= rewardAmount) {
+                  break;
+                }
+                
+                // Wait before retrying the read
+                if (readAttempt < 4) {
+                  await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+              }
+              
+              console.log("Quest creation: New allowance after approval:", {
+                raw: newAllowance.toString(),
+                formatted: formatUnits(newAllowance, STABLE_DECIMALS),
+                required: formatUnits(rewardAmount, STABLE_DECIMALS),
+              });
+
+              if (newAllowance >= rewardAmount) {
+                approvalSuccess = true;
+                break;
+              } else {
+                lastError = new Error(
+                  `Approval verification failed. Expected allowance of ${formatUnits(rewardAmount, STABLE_DECIMALS)} tokens, ` +
+                  `but only ${formatUnits(newAllowance, STABLE_DECIMALS)} was approved.`
+                );
+                
+                // If not the last attempt, wait before retrying
+                if (attempt < maxRetries) {
+                  console.log("Quest creation: Retrying approval in 2 seconds...");
+                  await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+              }
+            } catch (approvalError: unknown) {
+              const errorMsg = approvalError instanceof Error ? approvalError.message : String(approvalError);
+              console.error(`Quest creation: Approval attempt ${attempt} failed:`, errorMsg);
+              lastError = approvalError instanceof Error ? approvalError : new Error(errorMsg);
+              
+              // If not the last attempt, wait before retrying
+              if (attempt < maxRetries) {
+                console.log("Quest creation: Retrying approval in 2 seconds...");
+                await new Promise(resolve => setTimeout(resolve, 2000));
+              }
+            }
+          }
+
+          if (!approvalSuccess) {
+            throw lastError || new Error(
+              `Failed to approve tokens after ${maxRetries} attempts. ` +
+              `Please check if the token contract supports standard ERC20 approvals. ` +
+              `Token address: ${stableTokenAddress}`
+            );
+          }
+          
+          console.log("Quest creation: Approval successful!");
+        } else {
+          console.log("Quest creation: Sufficient allowance already exists, skipping approval");
+        }
 
         // Simulate the transaction first to catch errors before sending
         console.log("Quest creation: Simulating transaction...");
@@ -244,8 +382,36 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
             sim?.shortMessage || sim?.message || sim?.details || JSON.stringify(simError);
           console.error("Quest creation: Full simulation error:", errorMessage);
           
-          // Check if it's a token mismatch issue
-          if (errorMessage.includes("SafeERC20FailedOperation")) {
+          // Check for SafeERC20FailedOperation error (signature 0xfb8f41b2)
+          const errorString = JSON.stringify(simError);
+          const isSafeERC20Error = 
+            errorMessage.includes("SafeERC20FailedOperation") ||
+            errorMessage.includes("0xfb8f41b2") ||
+            errorString.includes("0xfb8f41b2") ||
+            errorMessage.includes("token transfer failed") ||
+            errorMessage.includes("ERC20 operation failed");
+
+          if (isSafeERC20Error) {
+            // Verify allowance one more time
+            try {
+              const finalAllowance = await publicClient!.readContract({
+                address: stableTokenAddress!,
+                abi: erc20Abi,
+                functionName: "allowance",
+                args: [address!, questArcadeAddress!],
+              }) as bigint;
+
+              if (finalAllowance < rewardAmount) {
+                throw new Error(
+                  `Insufficient token approval. Current allowance: ${formatUnits(finalAllowance, STABLE_DECIMALS)} tokens, ` +
+                  `required: ${formatUnits(rewardAmount, STABLE_DECIMALS)} tokens. ` +
+                  `Please try approving again.`
+                );
+              }
+            } catch (allowanceError) {
+              // If we can't check allowance, continue with generic error
+            }
+
             // Get the actual token address the contract expects
             try {
               const contractTokenAddress = await publicClient!.readContract({
@@ -265,10 +431,11 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
             }
             
             throw new Error(
-              `Token transfer failed. This usually means: ` +
-              `1) You don't have enough tokens, 2) The token approval failed, or ` +
-              `3) The token address doesn't match what the contract expects. ` +
-              `Check your balance and ensure the token address matches the contract deployment.`
+              `Token transfer failed (SafeERC20FailedOperation). This usually means: ` +
+              `1) The token approval wasn't sufficient, 2) You don't have enough tokens, ` +
+              `3) The token contract doesn't support standard transfers, or ` +
+              `4) There was an issue with the token address. ` +
+              `Please check your balance, try approving again, and ensure you're using the correct token.`
             );
           }
           
@@ -303,7 +470,7 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
           receipt = await publicClient!.waitForTransactionReceipt({ hash });
           console.log("Quest creation: Quest created in block:", receipt.blockNumber);
           console.log("Quest creation: Transaction receipt:", receipt);
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error("Quest creation: Failed to get transaction receipt:", error);
           // Try to get the transaction to see if it was reverted
           try {
@@ -344,6 +511,44 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
                 if (errorMessage.includes("QuestArcade__InvalidVerificationType") || errorMessage.includes("InvalidVerificationType")) {
                   throw new Error("Invalid verification type selected.");
                 }
+                // Check for SafeERC20FailedOperation error signature
+                const errorString = JSON.stringify(simError);
+                const isSafeERC20Error = 
+                  errorMessage.includes("SafeERC20FailedOperation") ||
+                  errorMessage.includes("0xfb8f41b2") ||
+                  errorString.includes("0xfb8f41b2") ||
+                  errorMessage.includes("token transfer failed") ||
+                  errorMessage.includes("ERC20 operation failed");
+
+                if (isSafeERC20Error) {
+                  // Verify allowance one more time
+                  try {
+                    const finalAllowance = await publicClient!.readContract({
+                      address: stableTokenAddress!,
+                      abi: erc20Abi,
+                      functionName: "allowance",
+                      args: [address!, questArcadeAddress!],
+                    }) as bigint;
+
+                    if (finalAllowance < rewardAmount) {
+                      throw new Error(
+                        `Insufficient token approval. Current allowance: ${formatUnits(finalAllowance, STABLE_DECIMALS)} tokens, ` +
+                        `required: ${formatUnits(rewardAmount, STABLE_DECIMALS)} tokens. ` +
+                        `Please try approving again.`
+                      );
+                    }
+                  } catch (allowanceError) {
+                    // If we can't check allowance, continue with generic error
+                  }
+
+                  throw new Error(
+                    `Token transfer failed (SafeERC20FailedOperation). Please ensure: ` +
+                    `1) You have approved the contract with sufficient tokens, ` +
+                    `2) You have enough balance, and ` +
+                    `3) The token address matches the contract deployment.`
+                  );
+                }
+
                 if (errorMessage.includes("ERC20") || errorMessage.includes("transfer") || errorMessage.includes("allowance") || errorMessage.includes("insufficient")) {
                   throw new Error("Token transfer failed. Please ensure you have approved the contract and have sufficient balance. Check your token balance.");
                 }

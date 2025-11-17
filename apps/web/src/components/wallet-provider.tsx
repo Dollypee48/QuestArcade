@@ -35,11 +35,9 @@ const createHttpTransport = (rpcUrl: string) => {
 };
 
 const wagmiConfig = createConfig({
-  chains: [celo, celoAlfajores, celoSepolia],
+  chains: [celoSepolia, celo, celoAlfajores],
   connectors,
   transports: {
-    [celo.id]: createHttpTransport('https://forno.celo.org'),
-    [celoAlfajores.id]: createHttpTransport('https://alfajores-forno.celo-testnet.org'),
     // Use fallback for Celo Sepolia to handle network issues
     [celoSepolia.id]: fallback([
       createHttpTransport('https://forno.celo-sepolia.celo-testnet.org'),
@@ -49,6 +47,8 @@ const wagmiConfig = createConfig({
       rank: false, // Try in order
       retryCount: 2,
     }),
+    [celo.id]: createHttpTransport('https://forno.celo.org'),
+    [celoAlfajores.id]: createHttpTransport('https://alfajores-forno.celo-testnet.org'),
   },
   ssr: true,
 });
@@ -121,7 +121,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
+        <RainbowKitProvider initialChain={celoSepolia}>
           <WalletProviderInner>{children}</WalletProviderInner>
         </RainbowKitProvider>
       </QueryClientProvider>

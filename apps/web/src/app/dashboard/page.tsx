@@ -94,9 +94,8 @@ export default function DashboardPage() {
     if (!address) return [];
     return myCreatedQuests.filter(
       (quest) =>
-        quest.onChainState === "verified" ||
-        quest.onChainState === "rejected" ||
-        (quest.onChainState === "verified" && quest.rewardClaimed)
+        (quest.onChainState === "verified" && quest.rewardClaimed) ||
+        quest.onChainState === "rejected"
     );
   }, [address, myCreatedQuests]);
   
@@ -495,7 +494,10 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex items-center gap-3">
                         {isSubmitted && (
-                          <Badge variant="outline" className="border-secondary/40 text-secondary">
+                          <Badge
+                            variant="accent"
+                            className="border border-secondary/40 bg-secondary/10 text-secondary"
+                          >
                             Awaiting review
                           </Badge>
                         )}
@@ -530,7 +532,10 @@ export default function DashboardPage() {
                   </h2>
                   <p className="text-xs text-white/60">Completed, verified, and rejected quests from your profile.</p>
                 </div>
-                <Badge variant="outline" className="text-[10px] uppercase tracking-widest border-white/20">
+                <Badge
+                  variant="accent"
+                  className="text-[10px] uppercase tracking-widest border border-white/20 bg-white/5 text-white"
+                >
                   {myQuestHistory.length} completed
                 </Badge>
               </div>
@@ -558,8 +563,10 @@ export default function DashboardPage() {
                         </div>
                       </div>
                       <Badge
-                        variant={isVerified ? "accent" : isRejected ? "destructive" : "outline"}
-                        className="text-[10px] uppercase tracking-widest w-fit"
+                        variant={isVerified ? "accent" : "default"}
+                        className={`text-[10] uppercase tracking-widest w-fit ${
+                          isRejected ? "border border-destructive/40 text-destructive" : ""
+                        }`}
                       >
                         {isVerified ? "Verified" : isRejected ? "Rejected" : "Completed"}
                       </Badge>
@@ -606,7 +613,10 @@ export default function DashboardPage() {
                           {isSubmitted ? "Proof submitted, awaiting verification" : "Accepted, work in progress"} • {quest.reward} cUSD
                         </p>
                       </div>
-                      <Badge variant="outline" className="text-[10px] uppercase tracking-widest border-secondary/40 text-secondary w-fit">
+                      <Badge
+                        variant="accent"
+                        className="text-[10px] uppercase tracking-widest border border-secondary/40 bg-secondary/10 text-secondary w-fit"
+                      >
                         {isSubmitted ? "Submitted" : "In Progress"}
                       </Badge>
                     </Link>

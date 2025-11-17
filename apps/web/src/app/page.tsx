@@ -122,14 +122,17 @@ function FeaturedQuests() {
             >
               <Card className="glass-card group h-full border-white/10 bg-gradient-card p-6 shadow-glow-sm transition-all hover:border-white/20 hover:shadow-glow">
                 <CardContent className="p-0">
-                  <div className="mb-4 flex items-start justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-primary/20">
-                      <Icon className="h-6 w-6 text-secondary" />
+                    <div className="mb  -4 flex items-start justify-between">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-primary/20">
+                        <Icon className="h-6 w-6 text-secondary" />
+                      </div>
+                      <Badge
+                        variant="accent"
+                        className="border border-white/20 bg-white/5 text-xs text-white/80"
+                      >
+                        {quest.difficulty}
+                      </Badge>
                     </div>
-                    <Badge variant="outline" className="border-white/20 text-xs">
-                      {quest.difficulty}
-                    </Badge>
-                  </div>
                   <h4 className="mb-2 text-lg font-semibold text-white">{quest.title}</h4>
                   <p className="mb-3 line-clamp-2 text-sm text-white/70">{quest.description}</p>
                   <div className="space-y-2 text-sm text-white/70">
