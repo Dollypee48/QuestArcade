@@ -68,12 +68,9 @@ const config = {
         },
       },
       backgroundImage: {
-        "gradient-primary":
-          "linear-gradient(135deg, #7C3AED 0%, #FF5EA9 45%, #FFC542 100%)",
-        "gradient-secondary":
-          "linear-gradient(135deg, rgba(44,21,73,0.92) 0%, rgba(12,6,28,0.92) 100%)",
-        "gradient-card":
-          "linear-gradient(145deg, rgba(124,58,237,0.12) 0%, rgba(45,214,181,0.08) 100%)",
+        "gradient-primary": "linear-gradient(135deg, #7C3AED 0%, #6D2FD9 100%)",
+        "gradient-secondary": "hsl(var(--background))",
+        "gradient-card": "linear-gradient(145deg, rgba(124,58,237,0.08) 0%, rgba(124,58,237,0.06) 100%)",
       },
       borderRadius: {
         lg: "var(--radius)",

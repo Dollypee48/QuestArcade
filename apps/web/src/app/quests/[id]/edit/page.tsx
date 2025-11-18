@@ -120,12 +120,12 @@ export default function EditQuestPage() {
 
   if (!quest || !isCreator) {
     return (
-      <div className="mx-auto flex min-h-[calc(100vh-160px)] w-full max-w-4xl flex-col items-center justify-center gap-6 px-4 text-center text-white/70">
-        <h1 className="text-3xl font-semibold text-white">Access Denied</h1>
+      <div className="mx-auto flex min-h-[calc(100vh-160px)] w-full max-w-4xl flex-col items-center justify-center gap-6 px-4 text-center text-foreground/70">
+        <h1 className="text-3xl font-semibold text-foreground">Access Denied</h1>
         <p className="text-sm">You can only edit quests that you created.</p>
         <Link
           href={`/quests/${params?.id}`}
-          className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm text-white transition hover:bg-white/15"
+          className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm text-foreground transition hover:bg-white/15"
         >
           Back to quest
         </Link>
@@ -137,7 +137,7 @@ export default function EditQuestPage() {
     <div className="mx-auto w-full max-w-5xl px-4 py-12">
       <Link
         href={`/quests/${quest.id}`}
-        className="mb-4 inline-flex items-center gap-2 text-sm text-white/70 transition hover:text-white"
+        className="mb-4 inline-flex items-center gap-2 text-sm text-foreground/70 transition hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to quest
@@ -148,14 +148,14 @@ export default function EditQuestPage() {
           <Shield className="h-4 w-4" />
           Edit quest
         </Badge>
-        <h1 className="text-4xl font-semibold text-white">Edit Quest</h1>
-        <p className="max-w-2xl text-sm text-white/70">
+        <h1 className="text-4xl font-semibold text-foreground">Edit Quest</h1>
+        <p className="max-w-2xl text-sm text-foreground/70">
           Update your quest details. You can only edit quests that are still open and haven&apos;t been accepted yet.
         </p>
       </div>
 
       <motion.form
-        className="glass-card grid gap-6 rounded-[32px] border border-white/10 bg-gradient-card p-10 shadow-glow md:grid-cols-[1.3fr_0.7fr]"
+        className="glass-card grid gap-6 rounded-[32px] border border-white/10 bg-white/5 p-10 shadow-glow md:grid-cols-[1.3fr_0.7fr]"
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         onSubmit={handleSubmit}
@@ -246,9 +246,9 @@ export default function EditQuestPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-white/70">
-            <h2 className="text-lg font-semibold text-white">Update summary</h2>
-            <div className="mt-4 space-y-3 text-xs text-white/60">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-foreground/70">
+            <h2 className="text-lg font-semibold text-foreground">Update summary</h2>
+            <div className="mt-4 space-y-3 text-xs text-foreground/60">
               <p className="flex items-center gap-2">
                 <Wallet className="h-4 w-4 text-secondary" />
                 Reward budget: {reward || 0} cUSD
@@ -263,9 +263,9 @@ export default function EditQuestPage() {
               </p>
             </div>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-white/65">
-            <h2 className="text-lg font-semibold text-white">Edit restrictions</h2>
-            <div className="mt-4 space-y-2 text-xs text-white/60">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-foreground/65">
+            <h2 className="text-lg font-semibold text-foreground">Edit restrictions</h2>
+            <div className="mt-4 space-y-2 text-xs text-foreground/60">
               <p>• You can only edit quests that are still open</p>
               <p>• You cannot edit if a worker has already accepted</p>
               <p>• Changing the reward amount may require additional token approvals</p>

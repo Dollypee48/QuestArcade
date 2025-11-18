@@ -17,6 +17,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { ConnectButton } from "@/components/connect-button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useMiniPay } from "@/hooks/use-minipay";
 import { truncateAddress } from "@/lib/app-utils";
 
@@ -87,28 +88,28 @@ function WalletDropdown({ address }: { address: string }) {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1.5 transition-colors hover:bg-white/10"
+        className="flex items-center gap-2 rounded-full border border-border/50 bg-card/50 px-3 py-1.5 transition-colors hover:bg-accent"
       >
         <CheckCircle2 className="h-3.5 w-3.5 text-green-400" />
-        <span className="text-sm font-medium text-white">{truncatedAddress}</span>
-        <ChevronDown className={`h-3.5 w-3.5 text-white/70 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+        <span className="text-sm font-medium text-foreground">{truncatedAddress}</span>
+        <ChevronDown className={`h-3.5 w-3.5 text-foreground/70 transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </button>
       {isOpen && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="absolute right-0 top-full z-50 mt-2 min-w-[200px] rounded-xl border border-white/10 bg-gradient-secondary p-2 shadow-lg"
+          className="absolute right-0 top-full z-50 mt-2 min-w-[200px] rounded-xl border border-border/50 bg-background p-2 shadow-lg"
         >
           <div className="space-y-1">
-            <div className="px-3 py-2 text-xs text-white/50">
-              <p className="font-medium text-white/70">Wallet Address</p>
-              <p className="mt-1 font-mono text-white/80">{address}</p>
+            <div className="px-3 py-2 text-xs text-foreground/50">
+              <p className="font-medium text-foreground/70">Wallet Address</p>
+              <p className="mt-1 font-mono text-foreground/80">{address}</p>
             </div>
-            <div className="border-t border-white/10"></div>
+            <div className="border-t border-border/50"></div>
             <button
               onClick={handleCopyAddress}
-              className="w-full rounded-lg px-3 py-2 text-left text-sm text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+              className="w-full rounded-lg px-3 py-2 text-left text-sm text-foreground/70 transition-colors hover:bg-accent hover:text-accent-foreground"
             >
               <div className="flex items-center gap-2">
                 <Copy className="h-4 w-4" />
@@ -168,7 +169,7 @@ function NetworkSwitcher() {
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
         disabled={isPending}
-        className="gap-2 border-white/20 bg-white/5 text-xs text-white/80 hover:bg-white/10 hover:text-white"
+        className="gap-2 border-border/50 bg-card/50 text-xs text-foreground/80 hover:bg-accent hover:text-accent-foreground"
       >
         <span>{networkName}</span>
         <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`} />
@@ -178,7 +179,7 @@ function NetworkSwitcher() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="absolute right-0 top-full z-50 mt-2 min-w-[160px] rounded-xl border border-white/10 bg-gradient-secondary p-2 shadow-lg"
+          className="absolute right-0 top-full z-50 mt-2 min-w-[160px] rounded-xl border border-border/50 bg-background p-2 shadow-lg"
         >
           {AVAILABLE_CHAINS.map((chain) => {
             const isActive = chain.id === chainId;
@@ -189,8 +190,8 @@ function NetworkSwitcher() {
                 disabled={isActive || isPending}
                 className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                   isActive
-                    ? "bg-white/10 text-white"
-                    : "text-white/70 hover:bg-white/10 hover:text-white"
+                    ? "bg-accent text-accent-foreground"
+                    : "text-foreground/70 hover:bg-accent hover:text-accent-foreground"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -222,11 +223,11 @@ export function Navbar() {
 
       const activeClasses =
         orientation === "horizontal"
-          ? "text-white drop-shadow-[0_0_8px_rgba(124,58,237,0.65)]"
-          : "bg-white/10 text-white shadow-glow";
+          ? "text-foreground drop-shadow-[0_0_8px_rgba(124,58,237,0.65)]"
+          : "bg-accent text-accent-foreground shadow-glow";
 
       const inactiveClasses =
-        orientation === "horizontal" ? "text-white/70 hover:text-white" : "text-white/80 hover:bg-white/10";
+        orientation === "horizontal" ? "text-foreground/70 hover:text-foreground" : "text-foreground/80 hover:bg-accent";
 
       return (
         <Link
@@ -245,7 +246,7 @@ export function Navbar() {
           {isActive && orientation === "horizontal" && (
             <motion.span
               layoutId="nav-active-indicator"
-              className="absolute inset-x-0 -bottom-2 h-0.5 rounded-full bg-gradient-primary"
+              className="absolute inset-x-0 -bottom-2 h-0.5 rounded-full bg-primary"
             />
           )}
         </Link>
@@ -255,7 +256,7 @@ export function Navbar() {
   const showMinipayBadge = useMemo(() => isReady && isMiniPay, [isMiniPay, isReady]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-background/70 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/70 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-2 px-6 md:px-8 lg:px-12 md:gap-4">
         <div className="flex items-center gap-2 md:flex-[1.2] md:gap-4">
           <Sheet>
@@ -265,11 +266,11 @@ export function Navbar() {
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-80 border-white/10 bg-gradient-secondary text-foreground">
+            <SheetContent side="left" className="w-80 border-border/50 bg-background text-foreground">
               <div className="mb-10 flex items-center justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-foreground/60">QuestArcade</p>
-                  <p className="text-lg font-semibold text-white">Play-to-Earn Missions</p>
+                  <p className="text-lg font-semibold text-foreground">Play-to-Earn Missions</p>
                 </div>
                 <SheetClose asChild>
                   <Button variant="ghost" size="icon">
@@ -279,11 +280,15 @@ export function Navbar() {
                 </SheetClose>
               </div>
               <nav className="flex flex-col gap-2">{renderNavLinks("vertical")}</nav>
-              <div className="mt-8 space-y-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div className="mt-8 space-y-4 rounded-2xl border border-border/50 bg-card/50 p-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-foreground">Theme</p>
+                  <ThemeToggle />
+                </div>
                 {isConnected && address ? (
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm font-semibold text-white">Wallet Connected</p>
+                      <p className="text-sm font-semibold text-foreground">Wallet Connected</p>
                       <div className="mt-2">
                         <WalletDropdown address={address} />
                       </div>
@@ -295,8 +300,8 @@ export function Navbar() {
                 ) : (
                   <>
                     <div>
-                      <p className="text-sm font-semibold text-white">MiniPay Wallet</p>
-                      <p className="mt-1 text-sm text-white/70">
+                      <p className="text-sm font-semibold text-foreground">MiniPay Wallet</p>
+                      <p className="mt-1 text-sm text-foreground/70">
                         Earn cUSD rewards instantly when you complete quests with MiniPay.
                       </p>
                     </div>
@@ -309,7 +314,7 @@ export function Navbar() {
 
           <Link href="/" className="flex items-center gap-2 md:gap-3">
             <motion.div
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-primary shadow-glow"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-glow"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -329,6 +334,7 @@ export function Navbar() {
         </nav>
 
         <div className="hidden flex items-center justify-end gap-3 md:flex md:flex-[1.2] lg:gap-4">
+          <ThemeToggle />
           {isConnected && address ? (
             <div className="flex items-center gap-3">
               <WalletDropdown address={address} />

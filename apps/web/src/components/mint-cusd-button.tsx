@@ -185,7 +185,7 @@ export function MintCUSDButton() {
 
   if (!tokenAddress) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/60">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-foreground/60">
         <p>Minting is only available on test networks with a configured token address.</p>
       </div>
     );
@@ -196,19 +196,19 @@ export function MintCUSDButton() {
       <div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-6">
         <div className="mb-4 flex items-center gap-2">
           <Coins className="h-5 w-5 text-yellow-400" />
-          <h3 className="text-lg font-semibold text-white">Minting Not Available</h3>
+          <h3 className="text-lg font-semibold text-foreground">Minting Not Available</h3>
         </div>
-        <p className="mb-4 text-sm text-white/70">
+        <p className="mb-4 text-sm text-foreground/70">
           The token contract at this address doesn&apos;t support public minting. This feature requires a MockERC20 contract with a public mint function.
         </p>
-        <div className="rounded-lg border border-white/10 bg-white/5 p-4 text-xs text-white/60">
-          <p className="mb-2 font-semibold text-white/80">To enable minting:</p>
+        <div className="rounded-lg border border-white/10 bg-white/5 p-4 text-xs text-foreground/60">
+          <p className="mb-2 font-semibold text-foreground/80">To enable minting:</p>
           <ul className="list-inside list-disc space-y-1">
             <li>Deploy a MockERC20 contract on your test network</li>
             <li>Update the STABLE_TOKEN_ADDRESS in your config</li>
             <li>Ensure the contract has a public mint(address, uint256) function</li>
           </ul>
-          <p className="mt-3 text-white/50">
+          <p className="mt-3 text-foreground/50">
             Current token address: <span className="font-mono text-xs">{tokenAddress}</span>
           </p>
         </div>
@@ -220,17 +220,17 @@ export function MintCUSDButton() {
     <div className="rounded-2xl border border-secondary/30 bg-secondary/10 p-6">
       <div className="mb-4 flex items-center gap-2">
         <Coins className="h-5 w-5 text-secondary" />
-        <h3 className="text-lg font-semibold text-white">Get Test cUSD</h3>
+        <h3 className="text-lg font-semibold text-foreground">Get Test cUSD</h3>
       </div>
       
-      <p className="mb-4 text-sm text-white/70">
+      <p className="mb-4 text-sm text-foreground/70">
         Mint 100 cUSD for testing quests. You can mint once every 5 hours.
       </p>
 
       {timeRemaining !== null && timeRemaining > 0 && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-3">
           <Clock className="h-4 w-4 text-secondary" />
-          <p className="text-sm text-white/80">
+          <p className="text-sm text-foreground/80">
             Cooldown: <span className="font-semibold text-secondary">{formatTimeRemaining(timeRemaining)}</span>
           </p>
         </div>
@@ -251,7 +251,7 @@ export function MintCUSDButton() {
       <Button
         onClick={handleMint}
         disabled={isMinting || !canMint}
-        className="w-full rounded-full bg-secondary text-white hover:bg-secondary/80"
+        className="w-full rounded-full bg-secondary text-foreground hover:bg-secondary/80"
       >
         {isMinting ? (
           <>
@@ -266,7 +266,7 @@ export function MintCUSDButton() {
         )}
       </Button>
 
-      <p className="mt-3 text-xs text-white/50">
+      <p className="mt-3 text-xs text-foreground/50">
         Note: This is for testing purposes only. Tokens have no real value.
       </p>
     </div>

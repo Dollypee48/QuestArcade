@@ -201,15 +201,15 @@ export default function QuestDetailsPage() {
   
   if (!quest) {
     return (
-      <div className="mx-auto flex min-h-[calc(100vh-160px)] w-full max-w-4xl flex-col items-center justify-center gap-6 px-4 text-center text-white/70">
-        <h1 className="text-3xl font-semibold text-white">Quest not found</h1>
+      <div className="mx-auto flex min-h-[calc(100vh-160px)] w-full max-w-4xl flex-col items-center justify-center gap-6 px-4 text-center text-foreground/70">
+        <h1 className="text-3xl font-semibold text-foreground">Quest not found</h1>
         <p className="text-sm">
           The quest you are looking for may have expired or is no longer available. Browse the quest
           directory to discover new missions.
         </p>
         <Link
           href="/quests"
-          className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm text-white transition hover:bg-white/15"
+          className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm text-foreground transition hover:bg-white/15"
         >
           Back to quests
           <ArrowLeft className="h-4 w-4" />
@@ -222,14 +222,14 @@ export default function QuestDetailsPage() {
     <div className="mx-auto w-full max-w-4xl px-4 py-12">
       <Link
         href="/quests"
-        className="mb-4 inline-flex items-center gap-2 text-sm text-white/70 transition hover:text-white"
+        className="mb-4 inline-flex items-center gap-2 text-sm text-foreground/70 transition hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to quests
       </Link>
 
       <motion.section
-        className="glass-card space-y-6 rounded-[32px] border border-white/10 bg-gradient-card p-8 shadow-glow"
+        className="glass-card space-y-6 rounded-[32px] border border-white/10 bg-white/5 p-8 shadow-glow"
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
       >
@@ -246,8 +246,8 @@ export default function QuestDetailsPage() {
                 +{quest.xp} XP
               </Badge>
             </div>
-            <h1 className="mt-4 text-3xl font-semibold text-white">{quest.title}</h1>
-            <p className="mt-3 max-w-2xl text-sm text-white/70">{quest.description}</p>
+            <h1 className="mt-4 text-3xl font-semibold text-foreground">{quest.title}</h1>
+            <p className="mt-3 max-w-2xl text-sm text-foreground/70">{quest.description}</p>
             {(isCompleted || isRejected || isVerified) && (
               <div className="mt-3">
                 <Badge
@@ -265,13 +265,13 @@ export default function QuestDetailsPage() {
                         : quest?.onChainState}
                 </Badge>
                 {isCompleted && (
-                  <p className="mt-2 text-xs text-white/60">
+                  <p className="mt-2 text-xs text-foreground/60">
                     This quest has been completed and rewards have been claimed. This is a read-only view of the
                     quest history.
                   </p>
                 )}
                 {isRejected && (
-                  <p className="mt-2 text-xs text-white/60">
+                  <p className="mt-2 text-xs text-foreground/60">
                     This quest submission was rejected. This is a read-only view of the quest history.
                   </p>
                 )}
@@ -279,48 +279,48 @@ export default function QuestDetailsPage() {
             )}
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-right">
-            <p className="text-xs uppercase tracking-widest text-white/60">Countdown</p>
-            <p className="mt-2 text-lg font-semibold text-white">{countdown}</p>
+            <p className="text-xs uppercase tracking-widest text-foreground/60">Countdown</p>
+            <p className="mt-2 text-lg font-semibold text-foreground">{countdown}</p>
           </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70">
-            <div className="flex items-center gap-2 text-white/80">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-foreground/70">
+            <div className="flex items-center gap-2 text-foreground/80">
               <MapPin className="h-4 w-4 text-secondary" />
               {quest.location}
             </div>
-            <p className="mt-2 text-xs uppercase tracking-widest text-white/50">
+            <p className="mt-2 text-xs uppercase tracking-widest text-foreground/50">
               Distance • {quest?.distance}
             </p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70">
-            <div className="flex items-center gap-2 text-white/80">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-foreground/70">
+            <div className="flex items-center gap-2 text-foreground/80">
               <ShieldCheck className="h-4 w-4 text-secondary" />
               Verification • {quest.verification}
             </div>
-            <p className="mt-2 text-xs uppercase tracking-widest text-white/50">Proof required</p>
+            <p className="mt-2 text-xs uppercase tracking-widest text-foreground/50">Proof required</p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70">
-            <div className="flex items-center gap-2 text-white/80">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-foreground/70">
+            <div className="flex items-center gap-2 text-foreground/80">
               <Clock className="h-4 w-4 text-secondary" />
               Time requirement
             </div>
-            <p className="mt-1 text-xs uppercase tracking-widest text-white/50">
+            <p className="mt-1 text-xs uppercase tracking-widest text-foreground/50">
               {quest.timeLimitHours ? `${quest.timeLimitHours} hours` : "Flexible"}
             </p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70">
-            <div className="flex items-center gap-2 text-white/80">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-foreground/70">
+            <div className="flex items-center gap-2 text-foreground/80">
               <Trophy className="h-4 w-4 text-secondary" />
               Season bonus
             </div>
-            <p className="mt-1 text-xs uppercase tracking-widest text-white/50">+10% streak bonus</p>
+            <p className="mt-1 text-xs uppercase tracking-widest text-foreground/50">+10% streak bonus</p>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70">
-          <h2 className="text-lg font-semibold text-white">Quest checklist</h2>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-foreground/70">
+          <h2 className="text-lg font-semibold text-foreground">Quest checklist</h2>
           <ul className="mt-3 space-y-2">
             <li>• Meet the partner on-site and verify the MiniPay wallet.</li>
             <li>• Help the partner accept at least one cUSD payment.</li>
@@ -371,24 +371,24 @@ export default function QuestDetailsPage() {
                 {hasSubmittedProof ? "Proof submitted" : "Submit proof"}
               </Button>
             </DialogTrigger>
-            <DialogContent className="w-full max-w-xl border-white/10 bg-gradient-secondary text-white max-h-[85vh] overflow-y-auto">
+            <DialogContent className="w-full max-w-xl border-white/10 bg-gradient-secondary text-foreground max-h-[85vh] overflow-y-auto">
               <DialogHeader className="text-left">
-                <DialogTitle className="text-2xl text-white">Submit quest proof</DialogTitle>
-                <p className="mt-2 text-sm text-white/70">
+                <DialogTitle className="text-2xl text-foreground">Submit quest proof</DialogTitle>
+                <p className="mt-2 text-sm text-foreground/70">
                   Upload your evidence. Files will be uploaded to IPFS before on-chain submission.
                 </p>
               </DialogHeader>
               <div className="flex h-full flex-col gap-6">
                 <div className="space-y-3">
-                  <p className="text-xs uppercase tracking-widest text-white/50">Proof type</p>
+                  <p className="text-xs uppercase tracking-widest text-foreground/50">Proof type</p>
                   <div className="flex flex-wrap gap-2">
                     {proofOptions.map((option) => (
                       <button
                         key={option.value}
                         className={`flex items-center gap-2 rounded-full border px-4 py-2 text-xs transition ${
                           selectedProof === option.value
-                            ? "border-secondary bg-secondary/20 text-white"
-                            : "border-white/10 text-white/70"
+                            ? "border-secondary bg-secondary/20 text-foreground"
+                            : "border-white/10 text-foreground/70"
                         }`}
                         onClick={() => setSelectedProof(option.value)}
                       >
@@ -399,8 +399,8 @@ export default function QuestDetailsPage() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <p className="text-xs uppercase tracking-widest text-white/50">Upload evidence</p>
-                  <label className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/20 bg-white/5 py-10 text-center text-sm text-white/60 transition hover:border-white/40">
+                  <p className="text-xs uppercase tracking-widest text-foreground/50">Upload evidence</p>
+                  <label className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/20 bg-white/5 py-10 text-center text-sm text-foreground/60 transition hover:border-white/40">
                     <Paperclip className="h-5 w-5" />
                     {isUploading
                       ? "Uploading to IPFS…"
@@ -439,7 +439,7 @@ export default function QuestDetailsPage() {
                   </label>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-xs uppercase tracking-widest text-white/50">Proof reference (CID or URL)</p>
+                  <p className="text-xs uppercase tracking-widest text-foreground/50">Proof reference (CID or URL)</p>
                   <Input
                     placeholder="ipfs://..."
                     value={proofCid}
@@ -448,7 +448,7 @@ export default function QuestDetailsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <p className="text-xs uppercase tracking-widest text-white/50">Notes for reviewer</p>
+                  <p className="text-xs uppercase tracking-widest text-foreground/50">Notes for reviewer</p>
                   <Textarea
                     rows={4}
                     placeholder="Add context for the verifier..."
@@ -456,7 +456,7 @@ export default function QuestDetailsPage() {
                     onChange={(event) => setNote(event.target.value)}
                   />
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-white/60">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-foreground/60">
                   <Timer className="mb-2 h-4 w-4 text-secondary" />
                   Proof will be time-stamped and stored through QuestArcade’s IPFS gateway. Expect
                   review within 6 hours.
@@ -513,14 +513,14 @@ export default function QuestDetailsPage() {
         </div>
 
         {showProofPreview && (
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/80">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-foreground/80">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-widest text-white/50">{proofSectionTitle}</p>
-                <p className="text-base text-white">{proofSectionDescription}</p>
+                <p className="text-xs uppercase tracking-widest text-foreground/50">{proofSectionTitle}</p>
+                <p className="text-base text-foreground">{proofSectionDescription}</p>
                 {isCreator && quest.worker && (
-                  <p className="mt-2 text-xs text-white/60">
-                    Submitted by <span className="font-mono text-white">{workerLabel}</span>
+                  <p className="mt-2 text-xs text-foreground/60">
+                    Submitted by <span className="font-mono text-foreground">{workerLabel}</span>
                   </p>
                 )}
               </div>
@@ -531,7 +531,7 @@ export default function QuestDetailsPage() {
             <div className="mt-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
               <div className="space-y-3">
                 <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-                  <p className="text-xs uppercase tracking-widest text-white/50">Proof reference</p>
+                  <p className="text-xs uppercase tracking-widest text-foreground/50">Proof reference</p>
                   {proofLinkHref ? (
                     <a
                       href={proofLinkHref}
@@ -543,16 +543,16 @@ export default function QuestDetailsPage() {
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   ) : (
-                    <p className="mt-2 text-sm text-white/60">Reference unavailable.</p>
+                    <p className="mt-2 text-sm text-foreground/60">Reference unavailable.</p>
                   )}
                   {quest?.proof?.cid && (
-                    <p className="mt-2 break-all text-[11px] text-white/40">CID: {quest.proof.cid}</p>
+                    <p className="mt-2 break-all text-[11px] text-foreground/40">CID: {quest.proof.cid}</p>
                   )}
                 </div>
                 {quest?.proof?.note && (
                   <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-                    <p className="text-xs uppercase tracking-widest text-white/50">Notes you shared</p>
-                    <p className="mt-2 text-sm text-white/80">{quest.proof.note}</p>
+                    <p className="text-xs uppercase tracking-widest text-foreground/50">Notes you shared</p>
+                    <p className="mt-2 text-sm text-foreground/80">{quest.proof.note}</p>
                   </div>
                 )}
               </div>
@@ -567,7 +567,7 @@ export default function QuestDetailsPage() {
                     onError={() => setImageError(true)}
                   />
                 ) : proofMediaType === "image" && imageError ? (
-                  <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-xl border border-white/10 bg-black/50 text-center text-white/60 p-4">
+                  <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-xl border border-white/10 bg-black/50 text-center text-foreground/60 p-4">
                     <FileText className="h-10 w-10 text-secondary" />
                     <p className="text-sm">Image failed to load.</p>
                     {quest.proof?.url && (
@@ -585,11 +585,11 @@ export default function QuestDetailsPage() {
                   <div className="relative">
                     {videoLoading && !videoReady && (
                       <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-black/80">
-                        <div className="text-center text-white/70">
+                        <div className="text-center text-foreground/70">
                           <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-secondary" />
                           <p className="text-xs">Loading video from IPFS...</p>
                           {currentVideoGatewayIndex > 0 && (
-                            <p className="mt-1 text-xs text-white/50">Trying gateway {currentVideoGatewayIndex + 1}</p>
+                            <p className="mt-1 text-xs text-foreground/50">Trying gateway {currentVideoGatewayIndex + 1}</p>
                           )}
                         </div>
                       </div>
@@ -716,7 +716,7 @@ export default function QuestDetailsPage() {
                       Your browser does not support the video tag.
                     </video>
                     {videoReady && !videoLoading && (
-                      <div className="absolute bottom-2 right-2 rounded bg-black/70 px-2 py-1 text-xs text-white/70">
+                      <div className="absolute bottom-2 right-2 rounded bg-black/70 px-2 py-1 text-xs text-foreground/70">
                         {currentVideoGatewayIndex === 0 ? "Primary gateway" : `Gateway ${currentVideoGatewayIndex + 1}`}
                       </div>
                     )}
@@ -735,12 +735,12 @@ export default function QuestDetailsPage() {
                     )}
                   </div>
                 ) : proofMediaType === "video" && videoError ? (
-                  <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-xl border border-white/10 bg-black/50 text-center text-white/60 p-4">
+                  <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-xl border border-white/10 bg-black/50 text-center text-foreground/60 p-4">
                     <svg className="h-10 w-10 text-secondary mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                     <p className="text-sm">Video failed to load from all gateways.</p>
-                    <p className="text-xs text-white/50">This might be due to CORS restrictions or network issues.</p>
+                    <p className="text-xs text-foreground/50">This might be due to CORS restrictions or network issues.</p>
                     {quest.proof?.url && (
                       <a
                         href={quest.proof.url}
@@ -752,7 +752,7 @@ export default function QuestDetailsPage() {
                       </a>
                     )}
                     {quest.proof?.cid && getVideoGateways.length > 0 && (
-                      <div className="mt-2 space-y-1 text-xs text-white/40">
+                      <div className="mt-2 space-y-1 text-xs text-foreground/40">
                         <p>Alternative gateways:</p>
                         <div className="space-y-1">
                           {getVideoGateways.map((gateway, idx) => (
@@ -771,7 +771,7 @@ export default function QuestDetailsPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="flex h-full flex-col items-center justify-center gap-3 text-center text-white/60">
+                  <div className="flex h-full flex-col items-center justify-center gap-3 text-center text-foreground/60">
                     <FileText className="h-10 w-10 text-secondary" />
                     <p className="text-sm">Preview not available. Use the link to open your submission.</p>
                     {quest?.proof?.url && (

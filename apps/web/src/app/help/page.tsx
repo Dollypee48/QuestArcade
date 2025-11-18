@@ -38,8 +38,8 @@ export default function HelpPage() {
           <HelpCircle className="h-4 w-4" />
           Help center
         </Badge>
-        <h1 className="mt-3 text-4xl font-semibold text-white">FAQs & support for QuestArcade</h1>
-        <p className="mx-auto mt-3 max-w-2xl text-sm text-white/70">
+        <h1 className="mt-3 text-4xl font-semibold text-foreground">FAQs & support for QuestArcade</h1>
+        <p className="mx-auto mt-3 max-w-2xl text-sm text-foreground/70">
           Learn how to connect MiniPay, submit quest proofs, earn cUSD, and stay safe while completing missions.
         </p>
       </div>
@@ -47,12 +47,12 @@ export default function HelpPage() {
       <section className="grid gap-6 md:grid-cols-3">
         <Card className="glass-card border-white/10 bg-white/10">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <Wallet className="h-5 w-5 text-secondary" />
               MiniPay onboarding
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-white/70">
+          <CardContent className="text-sm text-foreground/70">
             <p>1. Install Opera Mini and enable MiniPay in settings.</p>
             <p>2. Tap Connect Wallet in QuestArcade.</p>
             <p>3. Approve the dapp connection and you’re ready to earn.</p>
@@ -60,23 +60,23 @@ export default function HelpPage() {
         </Card>
         <Card className="glass-card border-white/10 bg-white/10">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <ShieldCheck className="h-5 w-5 text-secondary" />
               Proof & verification
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-white/70">
+          <CardContent className="text-sm text-foreground/70">
             <p>We support photo, video, and GPS proofs. Your submissions are timestamped, uploaded to IPFS, and verified by partners or automated scripts.</p>
           </CardContent>
         </Card>
         <Card className="glass-card border-white/10 bg-white/10">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <Zap className="h-5 w-5 text-secondary" />
               Rewards & streaks
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-white/70">
+          <CardContent className="text-sm text-foreground/70">
             <p>
               Maintain streaks to unlock boosters. Rewards are paid in cUSD via MiniPay. Watch for weekly streak missions to keep your multiplier active.
             </p>
@@ -88,27 +88,27 @@ export default function HelpPage() {
         {faqs.map((faq, index) => (
           <motion.div
             key={faq.question}
-            className="glass-card rounded-[28px] border border-white/10 bg-gradient-card p-6 shadow-glow-sm"
+            className="glass-card rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-glow-sm"
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.08 }}
           >
-            <h2 className="text-lg font-semibold text-white">{faq.question}</h2>
-            <p className="mt-2 text-sm text-white/70">{faq.answer}</p>
+            <h2 className="text-lg font-semibold text-foreground">{faq.question}</h2>
+            <p className="mt-2 text-sm text-foreground/70">{faq.answer}</p>
           </motion.div>
         ))}
       </section>
 
       <section className="mt-12 rounded-[32px] border border-white/10 bg-gradient-secondary p-10 text-center shadow-glow">
         <MessageCircle className="mx-auto mb-4 h-8 w-8 text-secondary" />
-        <h2 className="text-3xl font-semibold text-white">Need more help?</h2>
-        <p className="mx-auto mt-3 max-w-xl text-sm text-white/70">
+        <h2 className="text-3xl font-semibold text-foreground">Need more help?</h2>
+        <p className="mx-auto mt-3 max-w-xl text-sm text-foreground/70">
           Reach our support squad for quest disputes, MiniPay troubleshooting, and reward verification. We respond
           within 24 hours.
         </p>
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Button className="rounded-full px-6 py-3">Open support ticket</Button>
-          <Button variant="ghost" className="rounded-full border border-white/20 px-6 py-3 text-white">
+          <Button variant="ghost" className="rounded-full border border-white/20 px-6 py-3 text-foreground">
             Explore documentation
           </Button>
         </div>

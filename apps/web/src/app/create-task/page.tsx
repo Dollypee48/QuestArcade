@@ -83,15 +83,15 @@ export default function CreateTaskPage() {
           <PlusCircle className="h-4 w-4" />
           Create a new quest
         </Badge>
-        <h1 className="text-4xl font-semibold text-white">Launch a mission on QuestArcade</h1>
-        <p className="max-w-2xl text-sm text-white/70">
+        <h1 className="text-4xl font-semibold text-foreground">Launch a mission on QuestArcade</h1>
+        <p className="max-w-2xl text-sm text-foreground/70">
           Post a quest, set the reward budget in cUSD, and let the QuestArcade community complete your task.
           Payments are powered by Celo MiniPay and every proof is stored on IPFS for transparency.
         </p>
       </div>
 
       <motion.form
-        className="glass-card grid gap-6 rounded-[32px] border border-white/10 bg-gradient-card p-10 shadow-glow md:grid-cols-[1.3fr_0.7fr]"
+        className="glass-card grid gap-6 rounded-[32px] border border-white/10 bg-white/5 p-10 shadow-glow md:grid-cols-[1.3fr_0.7fr]"
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         onSubmit={handleSubmit}
@@ -149,8 +149,8 @@ export default function CreateTaskPage() {
                     onClick={() => setSelectedProof(type)}
                     className={`rounded-full border px-4 py-2 text-xs transition ${
                       selectedProof === type
-                        ? "border-secondary bg-secondary/20 text-white"
-                        : "border-white/10 text-white/60"
+                        ? "border-secondary bg-secondary/20 text-foreground"
+                        : "border-white/10 text-foreground/60"
                     }`}
                   >
                     {type}
@@ -168,8 +168,8 @@ export default function CreateTaskPage() {
                     onClick={() => setDifficulty(level)}
                     className={`rounded-full border px-4 py-2 text-xs transition ${
                       difficulty === level
-                        ? "border-primary bg-primary/25 text-white"
-                        : "border-white/10 text-white/60"
+                        ? "border-primary bg-primary/25 text-foreground"
+                        : "border-white/10 text-foreground/60"
                     }`}
                   >
                     {level}
@@ -213,9 +213,9 @@ export default function CreateTaskPage() {
 
         <div className="space-y-6">
           <MintCUSDButton />
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-white/70">
-            <h2 className="text-lg font-semibold text-white">Quest funding summary</h2>
-            <div className="mt-4 space-y-3 text-xs text-white/60">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-foreground/70">
+            <h2 className="text-lg font-semibold text-foreground">Quest funding summary</h2>
+            <div className="mt-4 space-y-3 text-xs text-foreground/60">
               <p className="flex items-center gap-2">
                 <Wallet className="h-4 w-4 text-secondary" />
                 Reward budget: {reward || 0} cUSD
@@ -230,9 +230,9 @@ export default function CreateTaskPage() {
               </p>
             </div>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-white/65">
-            <h2 className="text-lg font-semibold text-white">Location preview</h2>
-            <div className="mt-4 rounded-2xl border border-dashed border-white/15 bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.08)_0px,rgba(255,255,255,0.08)_2px,transparent_2px,transparent_10px)] p-6 text-center text-xs text-white/50">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-foreground/65">
+            <h2 className="text-lg font-semibold text-foreground">Location preview</h2>
+            <div className="mt-4 rounded-2xl border border-dashed border-white/15 bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.08)_0px,rgba(255,255,255,0.08)_2px,transparent_2px,transparent_10px)] p-6 text-center text-xs text-foreground/50">
               <MapPin className="mx-auto mb-3 h-6 w-6 text-secondary" />
               Integrate Mapbox or Google Maps via the SDK to render live maps and capture GPS coordinates.
             </div>

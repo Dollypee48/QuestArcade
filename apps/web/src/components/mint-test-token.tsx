@@ -104,15 +104,15 @@ export function MintTestToken() {
     <Card className="w-full max-w-md mx-auto mb-8 border-yellow-500/20 bg-yellow-500/5">
       <CardHeader>
         <CardTitle className="text-lg font-medium text-yellow-400">Get Test Tokens</CardTitle>
-        <p className="text-sm text-white/70">
+        <p className="text-sm text-foreground/70">
           Mint test tokens from the MockERC20 contract for testing quests.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="text-sm text-white/60">
+        <div className="text-sm text-foreground/60">
           <p>Token: {tokenInfo ? `${tokenInfo.name} (${tokenInfo.symbol})` : "Loading..."}</p>
           <p>Amount: 1000 tokens</p>
-          <p className="text-xs mt-2 text-white/50">
+          <p className="text-xs mt-2 text-foreground/50">
             Contract: {tokenAddress}
           </p>
           <p className="text-xs mt-1 text-yellow-400/70">
@@ -138,7 +138,7 @@ export function MintTestToken() {
           {isMinting ? "Minting..." : "Mint 1000 Test Tokens"}
         </Button>
 
-        <p className="text-xs text-white/50">
+        <p className="text-xs text-foreground/50">
           Note: These are test tokens on Celo Sepolia. They have no real value.
         </p>
       </CardContent>

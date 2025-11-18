@@ -47,11 +47,11 @@ export function QuestFilters({
   );
 
   return (
-    <div className="glass-card flex flex-col gap-6 rounded-3xl border border-white/10 bg-gradient-card p-6 shadow-glow-sm">
+    <div className="glass-card flex flex-col gap-6 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-glow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="h-4 w-4 text-secondary" />
-          <span className="text-sm font-semibold text-white/90">Quest filters</span>
+          <span className="text-sm font-semibold text-foreground/90">Quest filters</span>
         </div>
         {hasActiveFilters && (
           <Button variant="ghost" className="gap-2 text-xs" onClick={onReset}>
@@ -61,7 +61,7 @@ export function QuestFilters({
       </div>
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-3">
-          <Label className="text-xs uppercase tracking-widest text-white/60">Search location</Label>
+          <Label className="text-xs uppercase tracking-widest text-foreground/60">Search location</Label>
           <Input
             placeholder="e.g. Nairobi, Lagos, Accra"
             value={location}
@@ -69,7 +69,7 @@ export function QuestFilters({
           />
         </div>
         <div className="space-y-3">
-          <Label className="text-xs uppercase tracking-widest text-white/60">Within radius (km)</Label>
+          <Label className="text-xs uppercase tracking-widest text-foreground/60">Within radius (km)</Label>
           <Input
             type="number"
             min={1}
@@ -81,7 +81,7 @@ export function QuestFilters({
       </div>
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-3">
-          <Label className="text-xs uppercase tracking-widest text-white/60">Reward range (cUSD)</Label>
+          <Label className="text-xs uppercase tracking-widest text-foreground/60">Reward range (cUSD)</Label>
           <div className="grid grid-cols-2 gap-3">
             <Input
               type="number"
@@ -98,7 +98,7 @@ export function QuestFilters({
           </div>
         </div>
         <div className="space-y-3">
-          <Label className="text-xs uppercase tracking-widest text-white/60">Difficulty</Label>
+          <Label className="text-xs uppercase tracking-widest text-foreground/60">Difficulty</Label>
           <div className="flex flex-wrap gap-2">
             {difficulties.map((item) => {
               const isActive = difficulty.includes(item);
@@ -117,7 +117,7 @@ export function QuestFilters({
         </div>
       </div>
       <div className="space-y-3">
-        <Label className="text-xs uppercase tracking-widest text-white/60">Verification Type</Label>
+        <Label className="text-xs uppercase tracking-widest text-foreground/60">Verification Type</Label>
         <div className="flex flex-wrap gap-2">
           {verifications.map((item) => {
             const isActive = verification.includes(item);

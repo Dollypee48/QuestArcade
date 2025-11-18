@@ -289,10 +289,10 @@ export default function DashboardPage() {
             <Crown className="h-4 w-4" />
             {level} League
           </Badge>
-          <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
+          <h1 className="mt-3 text-3xl font-semibold text-foreground sm:text-4xl">
             Welcome back, {primaryLabel}
           </h1>
-          <p className="text-sm text-white/70">
+          <p className="text-sm text-foreground/70">
             {secondaryLabel}
           </p>
         </div>
@@ -310,15 +310,15 @@ export default function DashboardPage() {
             variants={gridVariant}
             initial="hidden"
             animate="show"
-            className="glass-card rounded-[28px] border border-white/10 bg-gradient-card"
+            className="glass-card rounded-[28px] border border-white/10 bg-white/5"
           >
             <Card className="border-0 bg-transparent">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <div className="h-16 w-16 overflow-hidden rounded-2xl border border-white/15 bg-white/10 flex items-center justify-center bg-gradient-to-br from-secondary/20 to-primary/20 relative">
+                    <div className="h-16 w-16 overflow-hidden rounded-2xl border border-white/15 bg-white/10 flex items-center justify-center relative">
                       {avatarError || !avatarUrl || avatarUrl === "/avatars/default.png" || avatarUrl.trim() === "" ? (
-                        <div className="w-full h-full flex items-center justify-center text-2xl font-semibold text-white">
+                        <div className="w-full h-full flex items-center justify-center text-2xl font-semibold text-foreground">
                           {primaryLabel.charAt(0).toUpperCase() || "U"}
                         </div>
                       ) : (
@@ -358,61 +358,61 @@ export default function DashboardPage() {
                     </Badge>
                   </div>
                   <div>
-                    <CardTitle className="text-2xl text-white">{primaryLabel}</CardTitle>
-                    <p className="text-xs uppercase tracking-widest text-white/60">
+                    <CardTitle className="text-2xl text-foreground">{primaryLabel}</CardTitle>
+                    <p className="text-xs uppercase tracking-widest text-foreground/60">
                       {secondaryLabel}
                     </p>
                   </div>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-right">
-                  <p className="text-xs uppercase tracking-widest text-white/60">Wallet balance</p>
-                  <p className="text-2xl font-semibold text-white">
+                  <p className="text-xs uppercase tracking-widest text-foreground/60">Wallet balance</p>
+                  <p className="text-2xl font-semibold text-foreground">
                     cUSD {formattedBalance}
                   </p>
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <div className="flex items-center justify-between text-xs text-white/60">
+                  <div className="flex items-center justify-between text-xs text-foreground/60">
                     <span>XP Progress</span>
                     <span>
                       {xp}/{nextLevelXp} XP
                     </span>
                   </div>
                   <Progress className="mt-3" value={xpProgress} />
-                  <p className="mt-2 text-xs text-white/60">
+                  <p className="mt-2 text-xs text-foreground/60">
                     Complete {Math.max(1, Math.ceil((nextLevelXp - xp) / 250))} missions to reach the
                     next tier.
                   </p>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/60">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-foreground/60">
                       <Flame className="h-4 w-4 text-secondary" />
                       Streak
                     </div>
-                    <p className="mt-2 text-2xl font-semibold text-white">{streak.current} days</p>
-                    <p className="text-[11px] text-white/50">Best streak {streak.best} days</p>
+                    <p className="mt-2 text-2xl font-semibold text-foreground">{streak.current} days</p>
+                    <p className="text-[11px] text-foreground/50">Best streak {streak.best} days</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/60">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-foreground/60">
                       <Trophy className="h-4 w-4 text-secondary" />
                       Completed
                     </div>
-                    <p className="mt-2 text-2xl font-semibold text-white">
+                    <p className="mt-2 text-2xl font-semibold text-foreground">
                       {progress.filter((item) => item.status === "completed").length}
                     </p>
-                    <p className="text-[11px] text-white/50">All-time missions</p>
+                    <p className="text-[11px] text-foreground/50">All-time missions</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/60">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-foreground/60">
                       <Map className="h-4 w-4 text-secondary" />
                       In progress
                     </div>
-                    <p className="mt-2 text-2xl font-semibold text-white">
+                    <p className="mt-2 text-2xl font-semibold text-foreground">
                       {progress.filter((item) => item.status === "accepted" || item.status === "in-progress").length}
                     </p>
-                    <p className="text-[11px] text-white/50">Active quests</p>
+                    <p className="text-[11px] text-foreground/50">Active quests</p>
                   </div>
                 </div>
               </CardContent>
@@ -427,7 +427,7 @@ export default function DashboardPage() {
             transition={{ delay: 0.1 }}
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">Available quests nearby</h2>
+              <h2 className="text-lg font-semibold text-foreground">Available quests nearby</h2>
               <Link href="/quests" className="text-xs text-secondary hover:text-secondary/80">
                 View all quests
               </Link>
@@ -467,8 +467,8 @@ export default function DashboardPage() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-semibold text-white">My active quests</h2>
-                  <p className="text-xs text-white/60">Quests you created that are open, accepted, or awaiting review.</p>
+                  <h2 className="text-lg font-semibold text-foreground">My active quests</h2>
+                  <p className="text-xs text-foreground/60">Quests you created that are open, accepted, or awaiting review.</p>
                 </div>
                 <Badge variant="accent" className="text-[10px] uppercase tracking-widest">
                   {myActiveQuests.length} active
@@ -480,15 +480,15 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={quest.id}
-                      className={`flex flex-col gap-3 rounded-2xl border p-4 text-sm text-white/80 md:flex-row md:items-center md:justify-between ${
+                      className={`flex flex-col gap-3 rounded-2xl border p-4 text-sm text-foreground/80 md:flex-row md:items-center md:justify-between ${
                         isSubmitted
                           ? "border-secondary/30 bg-secondary/10"
                           : "border-white/10 bg-white/5"
                       }`}
                     >
                       <div>
-                        <p className="text-white">{quest.title}</p>
-                        <p className="text-xs text-white/60">
+                        <p className="text-foreground">{quest.title}</p>
+                        <p className="text-xs text-foreground/60">
                           Reward {quest.reward} cUSD • {quest.onChainState === "submitted" ? "Proof submitted" : quest.onChainState || "Open"}
                         </p>
                       </div>
@@ -526,15 +526,15 @@ export default function DashboardPage() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                    <History className="h-4 w-4 text-white/60" />
+                  <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                    <History className="h-4 w-4 text-foreground/60" />
                     Quest history
                   </h2>
-                  <p className="text-xs text-white/60">Completed, verified, and rejected quests from your profile.</p>
+                  <p className="text-xs text-foreground/60">Completed, verified, and rejected quests from your profile.</p>
                 </div>
                 <Badge
                   variant="accent"
-                  className="text-[10px] uppercase tracking-widest border border-white/20 bg-white/5 text-white"
+                  className="text-[10px] uppercase tracking-widest border border-white/20 bg-white/5 text-foreground"
                 >
                   {myQuestHistory.length} completed
                 </Badge>
@@ -547,7 +547,7 @@ export default function DashboardPage() {
                     <Link
                       key={quest.id}
                       href={`/quests/${quest.id}`}
-                      className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/75 transition hover:bg-white/10 md:flex-row md:items-center md:justify-between"
+                      className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-foreground/75 transition hover:bg-white/10 md:flex-row md:items-center md:justify-between"
                     >
                       <div className="flex items-start gap-3">
                         {isVerified ? (
@@ -556,8 +556,8 @@ export default function DashboardPage() {
                           <XCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
                         ) : null}
                         <div>
-                          <p className="font-semibold text-white">{quest.title}</p>
-                          <p className="text-xs text-white/50">
+                          <p className="font-semibold text-foreground">{quest.title}</p>
+                          <p className="text-xs text-foreground/50">
                             {isVerified ? "Verified and rewarded" : isRejected ? "Rejected" : "Completed"} • {quest.reward} cUSD
                           </p>
                         </div>
@@ -588,11 +588,11 @@ export default function DashboardPage() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
                     <Clock className="h-4 w-4 text-secondary" />
                     In progress
                   </h2>
-                  <p className="text-xs text-white/60">Quests you&apos;re currently working on or have submitted.</p>
+                  <p className="text-xs text-foreground/60">Quests you&apos;re currently working on or have submitted.</p>
                 </div>
                 <Badge variant="accent" className="text-[10px] uppercase tracking-widest">
                   {myInProgressQuests.length} active
@@ -605,11 +605,11 @@ export default function DashboardPage() {
                     <Link
                       key={quest.id}
                       href={`/quests/${quest.id}`}
-                      className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/75 transition hover:bg-white/10 md:flex-row md:items-center md:justify-between"
+                      className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-foreground/75 transition hover:bg-white/10 md:flex-row md:items-center md:justify-between"
                     >
                       <div>
-                        <p className="font-semibold text-white">{quest.title}</p>
-                        <p className="text-xs text-white/50">
+                        <p className="font-semibold text-foreground">{quest.title}</p>
+                        <p className="text-xs text-foreground/50">
                           {isSubmitted ? "Proof submitted, awaiting verification" : "Accepted, work in progress"} • {quest.reward} cUSD
                         </p>
                       </div>
@@ -638,7 +638,7 @@ export default function DashboardPage() {
             <Card className="glass-card border-secondary/30 bg-secondary/10">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-white">Rewards ready to claim</CardTitle>
+                  <CardTitle className="text-foreground">Rewards ready to claim</CardTitle>
                   <Badge variant="accent" className="text-[10px] uppercase tracking-widest">
                     {claimableQuests.length}
                   </Badge>
@@ -653,8 +653,8 @@ export default function DashboardPage() {
                       className="flex flex-col gap-3 rounded-2xl border border-secondary/40 bg-background/60 p-4 text-sm"
                     >
                       <div>
-                        <p className="font-semibold text-white">{quest.title}</p>
-                        <p className="mt-1 text-xs text-white/60">
+                        <p className="font-semibold text-foreground">{quest.title}</p>
+                        <p className="mt-1 text-xs text-foreground/60">
                           Reward: <span className="text-secondary font-semibold">{quest.reward} cUSD</span>
                         </p>
                       </div>
@@ -670,7 +670,7 @@ export default function DashboardPage() {
                             }
                           }}
                           disabled={isClaiming}
-                          className="flex-1 rounded-full bg-secondary text-white hover:bg-secondary/80"
+                          className="flex-1 rounded-full bg-secondary text-foreground hover:bg-secondary/80"
                           size="sm"
                         >
                           {isClaiming ? (
@@ -687,7 +687,7 @@ export default function DashboardPage() {
                         </Button>
                         <Link
                           href={`/quests/${quest.id}`}
-                          className="rounded-full border border-white/20 px-3 py-2 text-xs text-white/70 hover:text-white hover:bg-white/10"
+                          className="rounded-full border border-white/20 px-3 py-2 text-xs text-foreground/70 hover:text-foreground hover:bg-white/10"
                         >
                           View
                         </Link>
@@ -704,7 +704,7 @@ export default function DashboardPage() {
             <Card className="glass-card border-white/10 bg-white/10">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-white flex items-center gap-2">
+                  <CardTitle className="text-foreground flex items-center gap-2">
                     <Trophy className="h-4 w-4 text-secondary" />
                     Completed quests
                   </CardTitle>
@@ -718,11 +718,11 @@ export default function DashboardPage() {
                   <Link
                     key={quest.id}
                     href={`/quests/${quest.id}`}
-                    className="flex items-center justify-between rounded-2xl border border-white/10 bg-background/60 p-4 text-sm text-white/75 transition hover:bg-white/10"
+                    className="flex items-center justify-between rounded-2xl border border-white/10 bg-background/60 p-4 text-sm text-foreground/75 transition hover:bg-white/10"
                   >
                     <div>
-                      <p className="font-semibold text-white">{quest.title}</p>
-                      <p className="text-xs text-white/50">
+                      <p className="font-semibold text-foreground">{quest.title}</p>
+                      <p className="text-xs text-foreground/50">
                         Reward claimed • {quest.reward} cUSD
                       </p>
                     </div>
@@ -735,11 +735,11 @@ export default function DashboardPage() {
 
           <Card className="glass-card border-white/10 bg-white/10">
             <CardHeader>
-              <CardTitle className="text-white">Alerts & boosters</CardTitle>
+              <CardTitle className="text-foreground">Alerts & boosters</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {notifications.length === 0 ? (
-                <div className="rounded-2xl border border-white/10 bg-background/60 p-5 text-sm text-white/70">
+                <div className="rounded-2xl border border-white/10 bg-background/60 p-5 text-sm text-foreground/70">
                   <Bell className="mb-2 h-5 w-5 text-secondary" />
                   <p>No new notifications. Complete a quest to trigger loot drops.</p>
                 </div>
@@ -747,11 +747,11 @@ export default function DashboardPage() {
                 notifications.slice(-4).map((notification) => (
                   <div
                     key={notification.id}
-                    className="rounded-2xl border border-white/10 bg-background/60 p-4 text-sm text-white/80"
+                    className="rounded-2xl border border-white/10 bg-background/60 p-4 text-sm text-foreground/80"
                   >
-                    <p className="font-semibold text-white">{notification.title}</p>
-                    <p className="text-xs text-white/60">{notification.description}</p>
-                    <p className="mt-2 text-[10px] uppercase tracking-widest text-white/40">
+                    <p className="font-semibold text-foreground">{notification.title}</p>
+                    <p className="text-xs text-foreground/60">{notification.description}</p>
+                    <p className="mt-2 text-[10px] uppercase tracking-widest text-foreground/40">
                       {new Date(notification.createdAt).toLocaleString()}
                     </p>
                   </div>

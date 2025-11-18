@@ -170,21 +170,21 @@ export default function RewardsPage() {
           <Gift className="h-4 w-4" />
           Arcade Emporium
         </Badge>
-        <h1 className="text-4xl font-semibold text-white">Redeem boosters, skins, badges, and streak perks</h1>
-        <p className="mx-auto max-w-2xl text-sm text-white/70">
+        <h1 className="text-4xl font-semibold text-foreground">Redeem boosters, skins, badges, and streak perks</h1>
+        <p className="mx-auto max-w-2xl text-sm text-foreground/70">
           Spend your cUSD earnings on collectible upgrades. MiniPay handles secure, gasless payments for every purchase.
         </p>
       </div>
 
       {/* Balance and Wallet Section */}
-      <div className="mb-8 flex flex-col items-center justify-between gap-4 rounded-3xl border border-white/10 bg-gradient-secondary px-6 py-8 text-sm text-white/80 sm:flex-row">
+      <div className="mb-8 flex flex-col items-center justify-between gap-4 rounded-3xl border border-white/10 bg-gradient-secondary px-6 py-8 text-sm text-foreground/80 sm:flex-row">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-glow">
             <Wallet className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs uppercase tracking-widest text-white/50">Wallet balance</p>
-            <p className="text-2xl font-semibold text-white">cUSD {safeBalance.toFixed(2)}</p>
+            <p className="text-xs uppercase tracking-widest text-foreground/50">Wallet balance</p>
+            <p className="text-2xl font-semibold text-foreground">cUSD {safeBalance.toFixed(2)}</p>
           </div>
         </div>
         {isConnected && address ? (
@@ -202,7 +202,7 @@ export default function RewardsPage() {
           <Button
             asChild
             variant="outline"
-            className="rounded-full border-white/20 bg-white/10 px-6 py-3 text-white hover:bg-white/20"
+            className="rounded-full border-white/20 bg-white/10 px-6 py-3 text-foreground hover:bg-white/20"
           >
             <Link href="/login">
               <Wallet className="mr-2 h-4 w-4" />
@@ -242,8 +242,8 @@ export default function RewardsPage() {
               variant={selectedType === tab.id ? "default" : "outline"}
               className={`gap-2 rounded-full border-white/20 px-4 py-2 text-sm ${
                 selectedType === tab.id
-                  ? "bg-white/20 text-white"
-                  : "bg-white/5 text-white/70 hover:bg-white/10"
+                  ? "bg-white/20 text-foreground"
+                  : "bg-white/5 text-foreground/70 hover:bg-white/10"
               }`}
               onClick={() => setSelectedType(tab.id)}
             >
@@ -267,8 +267,8 @@ export default function RewardsPage() {
             <div key={type} className="space-y-4">
               <div className="flex items-center gap-3">
                 <TypeIcon className="h-5 w-5 text-secondary" />
-                <h2 className="text-2xl font-semibold text-white">{getTypeLabel(type)}</h2>
-                <Badge variant="outline" className="border-white/20 text-white/60">
+                <h2 className="text-2xl font-semibold text-foreground">{getTypeLabel(type)}</h2>
+                <Badge variant="outline" className="border-white/20 text-foreground/60">
                   {typeRewards.length} available
                 </Badge>
               </div>
@@ -287,7 +287,7 @@ export default function RewardsPage() {
                       className={`glass-card rounded-[28px] border p-6 shadow-glow-sm ${
                         isClaimed
                           ? "border-green-500/30 bg-green-500/5"
-                          : "border-white/10 bg-gradient-card"
+                          : "border-white/10 bg-white/5"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-4">
@@ -306,16 +306,16 @@ export default function RewardsPage() {
                               </Badge>
                             )}
                           </div>
-                          <h3 className="text-lg font-semibold text-white">{reward.name}</h3>
-                          <p className="mt-2 text-sm text-white/70">{reward.description}</p>
+                          <h3 className="text-lg font-semibold text-foreground">{reward.name}</h3>
+                          <p className="mt-2 text-sm text-foreground/70">{reward.description}</p>
                         </div>
                         <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-right">
-                          <p className="text-xs uppercase tracking-widest text-white/50">Cost</p>
-                          <p className="text-lg font-semibold text-white">cUSD {reward.cost}</p>
+                          <p className="text-xs uppercase tracking-widest text-foreground/50">Cost</p>
+                          <p className="text-lg font-semibold text-foreground">cUSD {reward.cost}</p>
                         </div>
                       </div>
                       <div className="mt-6 flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs text-white/50">
+                        <div className="flex items-center gap-2 text-xs text-foreground/50">
                           <Star className="h-3.5 w-3.5 text-secondary" />
                           {reward.type === "booster" && "Lasts 3 quests"}
                           {reward.type === "skin" && "Avatar upgrade"}
@@ -367,10 +367,10 @@ export default function RewardsPage() {
           }
         }}
       >
-        <DialogContent className="max-w-md border-white/10 bg-gradient-card text-white">
+        <DialogContent className="max-w-md border-white/10 bg-white/5 text-foreground">
           <DialogHeader>
             <DialogTitle>Confirm Purchase</DialogTitle>
-            <DialogDescription className="text-white/70">
+            <DialogDescription className="text-foreground/70">
               {pendingReward
                 ? `You are about to redeem "${pendingReward.name}" for cUSD ${pendingReward.cost.toFixed(
                     2
@@ -378,15 +378,15 @@ export default function RewardsPage() {
                 : "You are about to redeem this item. This will be deducted from your wallet balance."}
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4 space-y-2 text-sm text-white/70">
+          <div className="mt-4 space-y-2 text-sm text-foreground/70">
             <p>
-              <span className="text-white/50">Current balance:</span>{" "}
-              <span className="font-semibold text-white">cUSD {safeBalance.toFixed(2)}</span>
+              <span className="text-foreground/50">Current balance:</span>{" "}
+              <span className="font-semibold text-foreground">cUSD {safeBalance.toFixed(2)}</span>
             </p>
             {pendingReward && (
               <p>
-                <span className="text-white/50">After purchase (approx):</span>{" "}
-                <span className="font-semibold text-white">
+                <span className="text-foreground/50">After purchase (approx):</span>{" "}
+                <span className="font-semibold text-foreground">
                   cUSD {(safeBalance - pendingReward.cost >= 0 ? safeBalance - pendingReward.cost : 0).toFixed(2)}
                 </span>
               </p>
@@ -395,7 +395,7 @@ export default function RewardsPage() {
           <DialogFooter className="mt-6 flex justify-end gap-3">
             <Button
               variant="outline"
-              className="rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10"
+              className="rounded-full border-white/20 bg-white/5 text-foreground hover:bg-white/10"
               onClick={() => {
                 setIsConfirmOpen(false);
                 setPendingReward(null);
@@ -424,12 +424,12 @@ export default function RewardsPage() {
       <section className="mt-12 grid gap-6 md:grid-cols-2">
         <Card className="glass-card border-white/10 bg-white/10">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <Zap className="h-5 w-5 text-secondary" />
               How Emporium Works
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-xs text-white/65">
+          <CardContent className="space-y-3 text-xs text-foreground/65">
             <p>• <strong>Boosters:</strong> Apply instantly and last for three quests. Multiple boosters stack up to +200% XP gain.</p>
             <p>• <strong>Skins:</strong> Update your avatar appearance on the leaderboard and profile.</p>
             <p>• <strong>Badges:</strong> Showcase achievements and milestones on your profile.</p>
@@ -438,19 +438,19 @@ export default function RewardsPage() {
         </Card>
         <Card className="glass-card border-white/10 bg-white/10">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <ShoppingBag className="h-5 w-5 text-secondary" />
               My Collection
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-xs text-white/65">
+          <CardContent className="space-y-3 text-xs text-foreground/65">
             <p>• View your claimed items in your profile.</p>
             <p>• Boosters activate automatically on your next quest.</p>
             <p>• Skins and badges are applied to your avatar instantly.</p>
             <p>• Perks provide ongoing benefits until they expire.</p>
             {claimedRewards.length > 0 && (
               <div className="mt-4 pt-4 border-t border-white/10">
-                <p className="text-sm text-white/80">You have {claimedRewards.length} claimed item{claimedRewards.length > 1 ? "s" : ""}.</p>
+                <p className="text-sm text-foreground/80">You have {claimedRewards.length} claimed item{claimedRewards.length > 1 ? "s" : ""}.</p>
               </div>
             )}
           </CardContent>

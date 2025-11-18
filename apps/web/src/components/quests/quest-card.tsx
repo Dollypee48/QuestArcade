@@ -28,7 +28,7 @@ export function QuestCard({ quest, onAccept, isAccepting = false, showAcceptButt
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="glass-card relative flex flex-col gap-6 rounded-3xl border border-white/10 bg-gradient-card p-6 shadow-glow-sm"
+      className="glass-card relative flex flex-col gap-6 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-glow-sm"
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -45,18 +45,18 @@ export function QuestCard({ quest, onAccept, isAccepting = false, showAcceptButt
               </Badge>
             ))}
           </div>
-          <h3 className="mt-3 text-xl font-semibold text-white">{quest.title}</h3>
-          <p className="mt-2 text-sm text-white/70">{quest.description}</p>
+          <h3 className="mt-3 text-xl font-semibold text-foreground">{quest.title}</h3>
+          <p className="mt-2 text-sm text-foreground/70">{quest.description}</p>
         </div>
         <div className="text-right">
-          <p className="text-xs uppercase tracking-widest text-white/60">Reward</p>
-          <p className="text-2xl font-semibold text-white">cUSD {quest.reward}</p>
-          <p className="mt-1 flex items-center justify-end gap-1 text-xs text-white/60">
+          <p className="text-xs uppercase tracking-widest text-foreground/60">Reward</p>
+          <p className="text-2xl font-semibold text-foreground">cUSD {quest.reward}</p>
+          <p className="mt-1 flex items-center justify-end gap-1 text-xs text-foreground/60">
             <Trophy className="h-3.5 w-3.5" /> +{quest.xp} XP
           </p>
         </div>
       </div>
-      <div className="grid gap-3 text-sm text-white/70 sm:grid-cols-4">
+      <div className="grid gap-3 text-sm text-foreground/70 sm:grid-cols-4">
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-secondary" />
           {quest.location}
@@ -75,7 +75,7 @@ export function QuestCard({ quest, onAccept, isAccepting = false, showAcceptButt
         </div>
       </div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-xs text-white/50">
+        <div className="text-xs text-foreground/50">
           Powered by Celo Composer • Proof stored on IPFS • Creator funded
         </div>
         <div className="flex gap-3">

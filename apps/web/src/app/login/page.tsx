@@ -29,10 +29,10 @@ export default function LoginPage() {
           <Badge variant="accent" className="gap-2">
             Welcome back
           </Badge>
-          <h1 className="text-3xl font-semibold text-white sm:text-4xl">
+          <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
             Log in to your QuestArcade hub
           </h1>
-          <p className="max-w-lg text-sm text-white/70">
+          <p className="max-w-lg text-sm text-foreground/70">
             Track your XP, streaks, and cUSD rewards. Toggle between email and wallet access at any
             time, with seamless MiniPay authentication.
           </p>
@@ -42,7 +42,7 @@ export default function LoginPage() {
             <div className="space-y-1">
               <Label htmlFor="login-email">Email</Label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/40" />
                 <Input
                   id="login-email"
                   type="email"
@@ -56,7 +56,7 @@ export default function LoginPage() {
             <div className="space-y-1">
               <Label htmlFor="login-password">Password</Label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/40" />
                 <Input
                   id="login-password"
                   type={showPassword ? "text" : "password"}
@@ -67,14 +67,14 @@ export default function LoginPage() {
                 />
                 <button
                   type="button"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/60"
                   onClick={() => setShowPassword((prev) => !prev)}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
-            <div className="flex items-center justify-between text-xs text-white/65">
+            <div className="flex items-center justify-between text-xs text-foreground/65">
               <label className="flex items-center gap-2">
                 <input type="checkbox" className="h-4 w-4 rounded border border-white/20 bg-transparent" />
                 Remember me
@@ -88,23 +88,23 @@ export default function LoginPage() {
             </Button>
           </div>
           <div className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-6 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground shadow-glow">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-glow">
               <Wallet className="h-5 w-5" />
             </div>
-            <h2 className="text-lg font-semibold text-white">MiniPay access</h2>
-            <p className="text-sm text-white/70">
+            <h2 className="text-lg font-semibold text-foreground">MiniPay access</h2>
+            <p className="text-sm text-foreground/70">
               Use your MiniPay wallet to sign in instantly. We’ll verify your account and sync your
               quest progress.
             </p>
             <Button
               variant="outline"
-              className="w-full rounded-full border-white/20 bg-white/10 py-3 text-sm font-semibold text-white/85 hover:bg-white/15"
+              className="w-full rounded-full border-white/20 bg-white/10 py-3 text-sm font-semibold text-foreground/85 hover:bg-white/15"
               onClick={connect}
               disabled={isConnecting}
             >
               {isMiniPay ? "Connect MiniPay" : "Connect wallet"}
             </Button>
-            <p className="text-xs text-white/55">
+            <p className="text-xs text-foreground/55">
               Need an account?{" "}
               <Link href="/register" className="text-secondary hover:text-secondary/90">
                 Register now

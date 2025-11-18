@@ -102,17 +102,17 @@ const [rewardRange, setRewardRange] = useState<[number, number]>([0, DEFAULT_REW
             <Filter className="h-4 w-4" />
             Quest directory
           </Badge>
-          <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
+          <h1 className="mt-3 text-3xl font-semibold text-foreground sm:text-4xl">
             Choose your next mission
           </h1>
-          <p className="text-sm text-white/70">
+          <p className="text-sm text-foreground/70">
             Discover quests funded by merchants, NGOs, and community partners. Filter by reward, location,
             or proof requirements.
           </p>
         </div>
         <div className="flex gap-3">
           <div className="relative w-full sm:w-60">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/40" />
             <Input
               placeholder="Search quests"
               className="rounded-full pl-12"
@@ -147,7 +147,7 @@ const [rewardRange, setRewardRange] = useState<[number, number]>([0, DEFAULT_REW
           />
           <div className="space-y-4">
             {filteredQuests.length > 0 && (
-              <div className="text-xs text-white/50">
+              <div className="text-xs text-foreground/50">
                 Showing {filteredQuests.length} of {quests.length} quests
               </div>
             )}
@@ -175,7 +175,7 @@ const [rewardRange, setRewardRange] = useState<[number, number]>([0, DEFAULT_REW
             })}
             {filteredQuests.length === 0 && quests.length === 0 && (
               <motion.div
-                className="rounded-3xl border border-white/10 bg-background/60 p-10 text-center text-sm text-white/60"
+                className="rounded-3xl border border-white/10 bg-background/60 p-10 text-center text-sm text-foreground/60"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
@@ -185,7 +185,7 @@ const [rewardRange, setRewardRange] = useState<[number, number]>([0, DEFAULT_REW
             )}
             {filteredQuests.length === 0 && quests.length > 0 && (
               <motion.div
-                className="rounded-3xl border border-white/10 bg-background/60 p-10 text-center text-sm text-white/60"
+                className="rounded-3xl border border-white/10 bg-background/60 p-10 text-center text-sm text-foreground/60"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >

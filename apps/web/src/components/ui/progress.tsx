@@ -13,13 +13,13 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
       <div
         ref={ref}
         className={cn(
-          "relative h-3 w-full overflow-hidden rounded-full bg-white/10",
+          "relative h-3 w-full overflow-hidden rounded-full bg-muted",
           className
         )}
         {...props}
       >
         <div
-          className="absolute inset-y-0 left-0 rounded-full bg-gradient-primary transition-all duration-500"
+          className="absolute inset-y-0 left-0 rounded-full bg-primary transition-all duration-500"
           style={{ width: `${clamped}%` }}
         />
       </div>

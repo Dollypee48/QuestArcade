@@ -37,13 +37,13 @@
 
   .light {
     --background: 249 57% 97%;
-    --foreground: 266 85% 12%;
+    --foreground: 266 85% 8%;
 
     --card: 0 0% 100%;
-    --card-foreground: 266 85% 13%;
+    --card-foreground: 266 85% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 264 80% 14%;
+    --popover-foreground: 266 85% 8%;
 
     --primary: 266 82% 58%;
     --primary-foreground: 0 0% 100%;
@@ -77,10 +77,20 @@
 
 @layer components {
   .glass-card {
-    @apply rounded-2xl border border-white/10 bg-white/5 shadow-glow backdrop-blur-xl;
+    @apply rounded-2xl border border-border/50 bg-card/50 shadow-glow backdrop-blur-xl;
   }
 
   .section-padding {
     @apply py-16 sm:py-20 lg:py-24;
   }
+}
+
+/* Dark mode specific styles */
+.dark .glass-card {
+  @apply border-white/10 bg-white/5;
+}
+
+/* Light mode specific styles */
+.light .glass-card {
+  @apply border-black/10 bg-white/80 shadow-md;
 }

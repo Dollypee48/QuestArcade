@@ -34,7 +34,7 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-12">
       <motion.div
-        className="glass-card rounded-[32px] border border-white/10 bg-gradient-card p-10 shadow-glow"
+        className="glass-card rounded-[32px] border border-white/10 bg-white/5 p-10 shadow-glow"
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
       >
@@ -59,8 +59,8 @@ export default function ProfilePage() {
                   <Shield className="h-4 w-4" />
                   Reputation {reputation}%
                 </Badge>
-                <h1 className="text-3xl font-semibold text-white">{displayName}</h1>
-                <p className="mt-1 text-sm text-white/60">
+                <h1 className="text-3xl font-semibold text-foreground">{displayName}</h1>
+                <p className="mt-1 text-sm text-foreground/60">
                   Level {level} • {xp}/{nextLevelXp} XP
                 </p>
               </div>
@@ -69,7 +69,7 @@ export default function ProfilePage() {
             <div className="grid gap-6 md:grid-cols-2">
               <Card className="glass-card border-white/10 bg-white/10">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-white">
+                  <CardTitle className="flex items-center gap-2 text-foreground">
                     <PenLine className="h-4 w-4 text-secondary" />
                     Edit profile
                   </CardTitle>
@@ -98,19 +98,19 @@ export default function ProfilePage() {
                   >
                     Save changes
                   </Button>
-                  <p className="text-xs text-white/50">
+                  <p className="text-xs text-foreground/50">
                     Tip: Upload avatar skins or boosters on the Rewards page to stand out on the leaderboard.
                   </p>
                 </CardContent>
               </Card>
               <Card className="glass-card border-white/10 bg-white/10">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-white">
+                  <CardTitle className="flex items-center gap-2 text-foreground">
                     <Wallet className="h-4 w-4 text-secondary" />
                     MiniPay status
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 text-sm text-white/70">
+                <CardContent className="space-y-4 text-sm text-foreground/70">
                   <p>
                     Connect MiniPay to auto-sync wallet balances, claim rewards instantly, and unlock gasless
                     quest submissions.
@@ -118,7 +118,7 @@ export default function ProfilePage() {
                   <Button variant="outline" className="w-full rounded-full border-white/20 bg-white/10">
                     Connect MiniPay
                   </Button>
-                  <div className="rounded-2xl border border-white/10 bg-background/60 p-4 text-xs text-white/60">
+                  <div className="rounded-2xl border border-white/10 bg-background/60 p-4 text-xs text-foreground/60">
                     <p>Upcoming: support for multiple wallets, including crypto-to-fiat ramps.</p>
                   </div>
                 </CardContent>
@@ -126,38 +126,38 @@ export default function ProfilePage() {
             </div>
           </div>
           <div className="w-full lg:w-64">
-            <div className="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-white/70">
-              <h2 className="text-lg font-semibold text-white">Your stats</h2>
+            <div className="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-foreground/70">
+              <h2 className="text-lg font-semibold text-foreground">Your stats</h2>
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-white/80">
+                <span className="flex items-center gap-2 text-foreground/80">
                   <Flame className="h-4 w-4 text-secondary" />
                   Streak
                 </span>
                 <span>{streak.current} days</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-white/80">
+                <span className="flex items-center gap-2 text-foreground/80">
                   <Trophy className="h-4 w-4 text-secondary" />
                   Missions
                 </span>
                 <span>{completedQuests}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-white/80">
+                <span className="flex items-center gap-2 text-foreground/80">
                   <Star className="h-4 w-4 text-secondary" />
                   XP
                 </span>
                 <span>{xp}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-white/80">
+                <span className="flex items-center gap-2 text-foreground/80">
                   <Award className="h-4 w-4 text-secondary" />
                   Best streak
                 </span>
                 <span>{streak.best} days</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-white/80">
+                <span className="flex items-center gap-2 text-foreground/80">
                   <Users className="h-4 w-4 text-secondary" />
                   Team invites
                 </span>
@@ -165,11 +165,11 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="mt-6 rounded-3xl border border-secondary/30 bg-secondary/15 p-6 text-sm text-secondary-foreground">
-              <h3 className="text-lg font-semibold text-white">Reputation ladder</h3>
-              <p className="mt-2 text-xs text-white/70">
+              <h3 className="text-lg font-semibold text-foreground">Reputation ladder</h3>
+              <p className="mt-2 text-xs text-foreground/70">
                 Complete verification quests to improve your reputation score and unlock high-tier missions.
               </p>
-              <div className="mt-4 space-y-2 text-xs text-white/60">
+              <div className="mt-4 space-y-2 text-xs text-foreground/60">
                 <p>• 0 - 40: Rookie explorer</p>
                 <p>• 40 - 70: Bronze Guardian</p>
                 <p>• 70 - 90: Gold Vanguard</p>

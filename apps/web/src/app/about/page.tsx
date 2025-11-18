@@ -35,8 +35,8 @@ export default function AboutPage() {
           <Globe className="h-4 w-4" />
           Our mission
         </Badge>
-        <h1 className="mt-3 text-4xl font-semibold text-white">QuestArcade: Play-to-earn with purpose</h1>
-        <p className="mx-auto mt-3 max-w-2xl text-sm text-white/70">
+        <h1 className="mt-3 text-4xl font-semibold text-foreground">QuestArcade: Play-to-earn with purpose</h1>
+        <p className="mx-auto mt-3 max-w-2xl text-sm text-foreground/70">
           QuestArcade combines real-world missions with a gamified dashboard, letting players earn cUSD rewards
           while supporting community growth. We’re built with Celo Composer and the MiniPay SDK for frictionless,
           on-the-go transactions.
@@ -47,14 +47,14 @@ export default function AboutPage() {
         {pillars.map((pillar, index) => (
           <motion.div
             key={pillar.title}
-            className="glass-card rounded-[28px] border border-white/10 bg-gradient-card p-6 shadow-glow-sm"
+            className="glass-card rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-glow-sm"
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
             <pillar.icon className="h-6 w-6 text-secondary" />
-            <h2 className="mt-4 text-xl font-semibold text-white">{pillar.title}</h2>
-            <p className="mt-2 text-sm text-white/70">{pillar.description}</p>
+            <h2 className="mt-4 text-xl font-semibold text-foreground">{pillar.title}</h2>
+            <p className="mt-2 text-sm text-foreground/70">{pillar.description}</p>
           </motion.div>
         ))}
         <motion.div
@@ -64,8 +64,8 @@ export default function AboutPage() {
           transition={{ delay: 0.3 }}
         >
           <Sparkles className="h-6 w-6 text-secondary" />
-          <h2 className="mt-4 text-xl font-semibold text-white">Built for builders</h2>
-          <p className="mt-2 text-sm text-white/70">
+          <h2 className="mt-4 text-xl font-semibold text-foreground">Built for builders</h2>
+          <p className="mt-2 text-sm text-foreground/70">
             Celo Composer accelerates decentralized app development. QuestArcade provides ready-to-use quest
             templates, MiniPay integration, and on-chain verification patterns for developers.
           </p>
@@ -75,24 +75,24 @@ export default function AboutPage() {
       <section className="mt-12 space-y-6">
         <Card className="glass-card border-white/10 bg-white/10">
           <CardHeader>
-            <CardTitle className="text-white">Why Celo MiniPay?</CardTitle>
+            <CardTitle className="text-foreground">Why Celo MiniPay?</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-4 text-sm text-white/70 md:grid-cols-3">
+          <CardContent className="grid gap-4 text-sm text-foreground/70 md:grid-cols-3">
             <div>
-              <h3 className="font-semibold text-white">Gasless onboarding</h3>
+              <h3 className="font-semibold text-foreground">Gasless onboarding</h3>
               <p className="mt-2 text-xs">
                 MiniPay abstracts gas fees so new users can submit proofs and earn without worrying about wallet
                 management.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-white">Instant settlement</h3>
+              <h3 className="font-semibold text-foreground">Instant settlement</h3>
               <p className="mt-2 text-xs">
                 Rewards are sent in cUSD immediately upon quest completion, so creators can reward players in real time.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-white">Mobile access</h3>
+              <h3 className="font-semibold text-foreground">Mobile access</h3>
               <p className="mt-2 text-xs">
                 Optimized for low-bandwidth environments, making Web3 missions accessible from any smartphone.
               </p>
