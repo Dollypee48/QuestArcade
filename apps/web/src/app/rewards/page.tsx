@@ -190,7 +190,7 @@ export default function RewardsPage() {
         {isConnected && address ? (
           <Button
             asChild
-            variant="outline"
+            variant="default"
             className="gap-2 rounded-full border-green-500/30 bg-green-500/10 px-6 py-3 text-green-400 hover:bg-green-500/20"
           >
             <Link href="/dashboard">
@@ -201,7 +201,7 @@ export default function RewardsPage() {
         ) : (
           <Button
             asChild
-            variant="outline"
+            variant="default"
             className="rounded-full border-white/20 bg-white/10 px-6 py-3 text-foreground hover:bg-white/20"
           >
             <Link href="/login">
@@ -268,7 +268,7 @@ export default function RewardsPage() {
               <div className="flex items-center gap-3">
                 <TypeIcon className="h-5 w-5 text-secondary" />
                 <h2 className="text-2xl font-semibold text-foreground">{getTypeLabel(type)}</h2>
-                <Badge variant="outline" className="border-white/20 text-foreground/60">
+                <Badge variant="default" className="border-white/20 text-foreground/60">
                   {typeRewards.length} available
                 </Badge>
               </div>
@@ -301,7 +301,7 @@ export default function RewardsPage() {
                               {getTypeLabel(reward.type)}
                             </Badge>
                             {isClaimed && (
-                              <Badge variant="outline" className="border-green-500/30 text-xs text-green-400">
+                              <Badge variant="default" className="border-green-500/30 text-xs text-green-400">
                                 Claimed
                               </Badge>
                             )}
@@ -394,7 +394,7 @@ export default function RewardsPage() {
           </div>
           <DialogFooter className="mt-6 flex justify-end gap-3">
             <Button
-              variant="outline"
+              variant="default"
               className="rounded-full border-white/20 bg-white/5 text-foreground hover:bg-white/10"
               onClick={() => {
                 setIsConfirmOpen(false);

@@ -122,21 +122,21 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
     async ({ title, description, reward, proofType, timeLimitHours }: CreateQuestArgs) => {
       try {
         console.log("Quest creation: Starting...");
-        console.log("Quest creation: Account:", address);
-        console.log("Quest creation: Quest Arcade Address:", questArcadeAddress);
-        console.log("Quest creation: Stable Token Address:", stableTokenAddress);
-        console.log("Quest creation: Contract expects token:", await publicClient!.readContract({
-          address: questArcadeAddress!,
-          abi: QUEST_ARCADE_ABI,
-          functionName: "stableToken",
-        }));
-        console.log("Quest creation: Addresses match:", stableTokenAddress.toLowerCase() === (await publicClient!.readContract({
-          address: questArcadeAddress!,
-          abi: QUEST_ARCADE_ABI,
-          functionName: "stableToken",
-        })).toLowerCase());
-        
         ensureWalletReady();
+        
+        // Log debug info after validation
+        if (stableTokenAddress && questArcadeAddress) {
+          const contractTokenAddress = (await publicClient!.readContract({
+            address: questArcadeAddress,
+            abi: QUEST_ARCADE_ABI,
+            functionName: "stableToken",
+          })) as `0x${string}`;
+          console.log("Quest creation: Account:", address);
+          console.log("Quest creation: Quest Arcade Address:", questArcadeAddress);
+          console.log("Quest creation: Stable Token Address:", stableTokenAddress);
+          console.log("Quest creation: Contract expects token:", contractTokenAddress);
+          console.log("Quest creation: Addresses match:", stableTokenAddress.toLowerCase() === contractTokenAddress.toLowerCase());
+        }
         setCreateState({ status: "pending" });
 
         const rewardAmount = parseUnits(reward.toString(), STABLE_DECIMALS);
@@ -408,7 +408,7 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
                   `Please try approving again.`
                 );
               }
-            } catch (allowanceError) {
+            } catch {
               // If we can't check allowance, continue with generic error
             }
 
@@ -537,7 +537,7 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
                         `Please try approving again.`
                       );
                     }
-                  } catch (allowanceError) {
+                  } catch {
                     // If we can't check allowance, continue with generic error
                   }
 

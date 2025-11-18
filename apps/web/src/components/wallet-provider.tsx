@@ -78,9 +78,11 @@ function WalletProviderInner({ children }: { children: React.ReactNode }) {
         if (injectedConnector) {
           // Use setTimeout to avoid conflicts with other wallet initialization
           setTimeout(() => {
-            void connect({ connector: injectedConnector }).catch((error) => {
+            try {
+              connect({ connector: injectedConnector });
+            } catch (error) {
               console.warn("Failed to auto-connect MiniPay:", error);
-            });
+            }
           }, 100);
         }
       }

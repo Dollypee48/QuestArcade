@@ -229,7 +229,7 @@ const getNextLevelXp = (xp: number): number => {
 
 export const useGameStore = create<GameState>()(
   persist(
-    (set) => ({
+    (set): GameState => ({
       displayName: "",
       avatarUrl: "/avatars/default.png",
       level: "Rookie",
@@ -238,7 +238,7 @@ export const useGameStore = create<GameState>()(
       balance: 0,
       lastSyncedOnChainBalance: 0,
       quests: INITIAL_QUESTS,
-      progress: [],
+      progress: [] as QuestProgress[],
       streak: {
         current: 0,
         best: 0,
@@ -536,5 +536,5 @@ export const useGameStore = create<GameState>()(
   )
 );
 
-export type { LeaderboardEntry, LevelTier, QuestProgress, QuestProof, RewardItem, StreakState };
+export type { LeaderboardEntry, LevelTier, QuestProgress, RewardItem, StreakState };
 

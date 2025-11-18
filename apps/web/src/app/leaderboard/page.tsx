@@ -1,19 +1,20 @@
 "use client";
 
 import { useMemo } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Crown, Medal, Sparkles, TrendingUp, User } from "lucide-react";
 import { useAccount } from "wagmi";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGameStore, type LeaderboardEntry } from "@/store/use-game-store";
+import { useGameStore, type LeaderboardEntry, type Quest } from "@/store/use-game-store";
 import { buildIpfsGatewayUrl } from "@/lib/ipfs";
 
 const TOP_USERS_COUNT = 50;
 
 function computeLeaderboard(
-  quests: ReturnType<typeof useGameStore>["quests"],
+  quests: Quest[],
   currentUserAddress?: `0x${string}`,
   currentUserXp?: number,
   currentUserLevel?: string,
@@ -235,10 +236,13 @@ export default function LeaderboardPage() {
                           }
                         >
                           {avatarUrl ? (
-                            <img
+                            <Image
                               src={avatarUrl}
-                              alt={entry.name}
+                              alt={`${entry.name} avatar`}
+                              width={64}
+                              height={64}
                               className="h-full w-full object-cover"
+                              unoptimized
                               onError={(e) => {
                                 // Fallback to initial if image fails
                                 const target = e.target as HTMLImageElement;
@@ -323,10 +327,13 @@ export default function LeaderboardPage() {
                       <div className="relative">
                         <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-primary/50 bg-primary/20">
                           {getAvatarUrl(currentUserEntry) ? (
-                            <img
+                            <Image
                               src={getAvatarUrl(currentUserEntry)!}
-                              alt={currentUserEntry.name}
+                              alt={`${currentUserEntry.name} avatar`}
+                              width={64}
+                              height={64}
                               className="h-full w-full object-cover"
+                              unoptimized
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 target.style.display = "none";

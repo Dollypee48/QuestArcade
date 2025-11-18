@@ -11,6 +11,10 @@ import { WalletProvider } from "@/components/wallet-provider";
 export const metadata: Metadata = {
   title: "questArcade",
   description: "A celo web3 project built on minipay using celo composer",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

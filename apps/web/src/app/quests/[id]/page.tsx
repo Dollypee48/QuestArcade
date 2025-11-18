@@ -37,7 +37,7 @@ import { Input } from "@/components/ui/input";
 import { useGameStore } from "@/store/use-game-store";
 import { useQuestActions } from "@/hooks/use-quest-actions";
 import { useQuestArcadeSync } from "@/hooks/use-quest-arcade";
-import { uploadToPinata, buildIpfsGatewayUrl } from "@/lib/ipfs";
+import { uploadToPinata } from "@/lib/ipfs";
 import { loadVideo, revokeVideoBlobUrl, buildIpfsVideoUrl, getAllGatewayUrls, detectVideoType } from "@/lib/video-loader";
 
 const proofOptions = [
@@ -148,7 +148,7 @@ export default function QuestDetailsPage() {
     }
     setVideoDirectUrl(null);
     setVideoLoadMethod("direct");
-  }, [quest?.id, quest?.proof?.url, quest?.proof?.cid]);
+  }, [quest?.id, quest?.proof?.url, quest?.proof?.cid, videoBlobUrl]);
 
   // Get video source (CID or URL)
   const videoSource = useMemo(() => {
@@ -165,7 +165,7 @@ export default function QuestDetailsPage() {
     }
     
     return null;
-  }, [quest?.proof?.cid, quest?.proof?.url]);
+  }, [quest?.proof]);
 
   // Get all gateway URLs for fallback
   const getVideoGateways = useMemo(() => {
@@ -276,6 +276,7 @@ export default function QuestDetailsPage() {
       isCancelled = true;
       // Cleanup will be handled by the reset effect
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoSource, proofMediaType, currentVideoGatewayIndex]);
   const proofLinkHref = quest?.proof?.url ?? quest?.proof?.cid;
   const proofExists = Boolean(quest?.proof?.cid || quest?.proof?.note);
@@ -618,7 +619,7 @@ export default function QuestDetailsPage() {
                   </p>
                 )}
               </div>
-              <Badge variant="outline" className="border-secondary/40 text-secondary">
+              <Badge variant="default" className="border-secondary/40 text-secondary">
                 {proofTypeLabel ?? "Submitted"}
               </Badge>
             </div>

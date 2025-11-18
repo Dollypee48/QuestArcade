@@ -11,7 +11,6 @@ const GATEWAYS = [
 ];
 
 const BLOB_FETCH_TIMEOUT = 10000; // 10 seconds - faster timeout
-const DIRECT_URL_FALLBACK_DELAY = 2000; // Try direct URL after 2 seconds if blob fails
 
 export type VideoLoadResult = {
   blobUrl: string | null;
@@ -122,7 +121,7 @@ export async function loadVideo(
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), BLOB_FETCH_TIMEOUT);
 
-      const { blob, type } = await fetchVideoBlob(cidOrUrl, controller.signal);
+      const { blob } = await fetchVideoBlob(cidOrUrl, controller.signal);
       clearTimeout(timeoutId);
 
       const blobUrl = URL.createObjectURL(blob);
@@ -154,7 +153,7 @@ export async function loadVideo(
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), BLOB_FETCH_TIMEOUT);
 
-      const { blob, type } = await fetchVideoBlob(gateways[0], controller.signal);
+      const { blob } = await fetchVideoBlob(gateways[0], controller.signal);
       clearTimeout(timeoutId);
 
       const blobUrl = URL.createObjectURL(blob);

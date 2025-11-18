@@ -10,6 +10,21 @@ import { CHAIN_CONFIG } from "@/config/contractConfig";
 
 const MINT_AMOUNT = parseUnits("1000", 18); // 1000 tokens
 
+// MockERC20 ABI with mint function
+const MOCK_ERC20_ABI = [
+  ...erc20Abi,
+  {
+    name: "mint",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "to", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [],
+  },
+] as const;
+
 export function MintTestToken() {
   const { address, isConnected } = useAccount();
   const { writeContractAsync } = useWriteContract();
@@ -69,6 +84,11 @@ export function MintTestToken() {
   }
 
   const handleMint = async () => {
+    if (!tokenAddress || !address) {
+      setError("Token address or wallet address is missing");
+      return;
+    }
+
     setIsMinting(true);
     setError(null);
     setSuccess(false);
@@ -78,7 +98,7 @@ export function MintTestToken() {
       const hash = await writeContractAsync({
         account: address,
         address: tokenAddress,
-        abi: erc20Abi,
+        abi: MOCK_ERC20_ABI,
         functionName: "mint",
         args: [address, MINT_AMOUNT],
       });
