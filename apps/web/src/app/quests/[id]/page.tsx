@@ -37,7 +37,8 @@ import { Input } from "@/components/ui/input";
 import { useGameStore } from "@/store/use-game-store";
 import { useQuestActions } from "@/hooks/use-quest-actions";
 import { useQuestArcadeSync } from "@/hooks/use-quest-arcade";
-import { uploadToPinata } from "@/lib/ipfs";
+import { uploadToPinata, buildIpfsGatewayUrl } from "@/lib/ipfs";
+import { loadVideo, revokeVideoBlobUrl, buildIpfsVideoUrl, getAllGatewayUrls, detectVideoType } from "@/lib/video-loader";
 
 const proofOptions = [
   { value: "photo", label: "Photo evidence", icon: Camera },
@@ -68,9 +69,12 @@ export default function QuestDetailsPage() {
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [videoError, setVideoError] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [videoLoading, setVideoLoading] = useState(true);
+  const [videoLoading, setVideoLoading] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [currentVideoGatewayIndex, setCurrentVideoGatewayIndex] = useState(0);
+  const [videoBlobUrl, setVideoBlobUrl] = useState<string | null>(null);
+  const [videoDirectUrl, setVideoDirectUrl] = useState<string | null>(null);
+  const [videoLoadMethod, setVideoLoadMethod] = useState<"blob" | "direct">("direct");
 
   const { refresh } = useQuestArcadeSync();
   const { acceptQuest, submitProof, verifyQuest, claimReward, states } = useQuestActions({ onSettled: refresh });
@@ -135,35 +139,39 @@ export default function QuestDetailsPage() {
     setVideoError(false);
     setImageError(false);
     setCurrentVideoGatewayIndex(0);
-    setVideoLoading(true);
+    setVideoLoading(false);
     setVideoReady(false);
+    // Clean up previous blob URL
+    if (videoBlobUrl) {
+      revokeVideoBlobUrl(videoBlobUrl);
+      setVideoBlobUrl(null);
+    }
+    setVideoDirectUrl(null);
+    setVideoLoadMethod("direct");
   }, [quest?.id, quest?.proof?.url, quest?.proof?.cid]);
 
-  // Get alternative IPFS gateway URLs for video fallback
-  const getVideoGateways = useMemo(() => {
-    if (!quest?.proof?.cid) return [];
-    const cid = quest.proof.cid.replace(/^ipfs:\/\//, "");
-    const gateways = [
-      `https://ipfs.io/ipfs/${cid}`,
-      `https://gateway.pinata.cloud/ipfs/${cid}`,
-      `https://cloudflare-ipfs.com/ipfs/${cid}`,
-      `https://dweb.link/ipfs/${cid}`,
-    ];
-    return gateways;
-  }, [quest?.proof?.cid]);
-
-  const videoUrl = useMemo(() => {
-    if (!quest?.proof?.url) return undefined;
-    // Always use the primary URL first
-    if (currentVideoGatewayIndex === 0) {
+  // Get video source (CID or URL)
+  const videoSource = useMemo(() => {
+    if (!quest?.proof) return null;
+    
+    // Prefer CID if available
+    if (quest.proof.cid) {
+      return quest.proof.cid;
+    }
+    
+    // Fallback to URL
+    if (quest.proof.url) {
       return quest.proof.url;
     }
-    // Try alternative gateways if primary failed
-    if (getVideoGateways.length > 0 && currentVideoGatewayIndex > 0 && currentVideoGatewayIndex < getVideoGateways.length) {
-      return getVideoGateways[currentVideoGatewayIndex];
-    }
-    return quest.proof.url;
-  }, [quest?.proof?.url, getVideoGateways, currentVideoGatewayIndex]);
+    
+    return null;
+  }, [quest?.proof?.cid, quest?.proof?.url]);
+
+  // Get all gateway URLs for fallback
+  const getVideoGateways = useMemo(() => {
+    if (!quest?.proof?.cid) return [];
+    return getAllGatewayUrls(quest.proof.cid);
+  }, [quest?.proof?.cid]);
 
   const proofMediaType = useMemo(() => {
     if (!quest?.proof) return undefined;
@@ -183,6 +191,92 @@ export default function QuestDetailsPage() {
     }
     return undefined;
   }, [quest?.proof]);
+
+  // Optimized video loading with fast fallback (10s timeout, immediate direct URL fallback)
+  useEffect(() => {
+    if (!videoSource || proofMediaType !== "video") {
+      return;
+    }
+
+    let isCancelled = false;
+
+    const loadVideoAsync = async () => {
+      try {
+        setVideoLoading(true);
+        setVideoError(false);
+        setVideoReady(false);
+        
+        // Clean up previous blob URL
+        if (videoBlobUrl) {
+          revokeVideoBlobUrl(videoBlobUrl);
+          setVideoBlobUrl(null);
+        }
+
+        // Use optimized video loader (10s timeout, fast fallback)
+        const result = await loadVideo(videoSource, {
+          preferBlob: true,
+          maxRetries: 1, // Only try 1 alternative gateway for speed
+          onProgress: (gatewayIndex, method) => {
+            if (!isCancelled) {
+              setCurrentVideoGatewayIndex(gatewayIndex);
+              setVideoLoadMethod(method);
+            }
+          },
+        });
+
+        if (isCancelled) {
+          if (result.blobUrl) {
+            revokeVideoBlobUrl(result.blobUrl);
+          }
+          return;
+        }
+
+        // Set the loaded video URLs
+        if (result.blobUrl) {
+          setVideoBlobUrl(result.blobUrl);
+          setVideoDirectUrl(result.directUrl);
+          setVideoLoadMethod("blob");
+          setVideoLoading(false);
+        } else {
+          // Use direct URL (faster, no blob conversion needed)
+          setVideoBlobUrl(null);
+          setVideoDirectUrl(result.directUrl);
+          setVideoLoadMethod("direct");
+          setVideoLoading(false);
+        }
+
+        if (result.error) {
+          console.warn("Video load warning:", result.error);
+        }
+      } catch (error) {
+        console.error("Error loading video:", error);
+        if (!isCancelled) {
+          // Set direct URL as immediate fallback
+          if (videoSource) {
+            const fallbackUrl = videoSource.startsWith("http") 
+              ? videoSource 
+              : buildIpfsVideoUrl(videoSource, currentVideoGatewayIndex);
+            setVideoDirectUrl(fallbackUrl);
+            setVideoBlobUrl(null);
+            setVideoLoadMethod("direct");
+            setVideoError(false); // Don't show error, try direct URL
+            setVideoLoading(false);
+          } else {
+            setVideoError(true);
+            setVideoLoading(false);
+          }
+        }
+      }
+    };
+
+    // Start loading immediately
+    loadVideoAsync();
+
+    return () => {
+      isCancelled = true;
+      // Cleanup will be handled by the reset effect
+    };
+  }, [videoSource, proofMediaType, currentVideoGatewayIndex]);
   const proofLinkHref = quest?.proof?.url ?? quest?.proof?.cid;
   const proofExists = Boolean(quest?.proof?.cid || quest?.proof?.note);
   const showProofPreview = (isWorker || isCreator) && proofExists;
@@ -278,13 +372,13 @@ export default function QuestDetailsPage() {
               </div>
             )}
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-right">
+          <div className="rounded-2xl border border-white/10 bg-white/5 px-4 sm:px-5 py-3 sm:py-4 text-left sm:text-right w-full sm:w-auto">
             <p className="text-xs uppercase tracking-widest text-foreground/60">Countdown</p>
-            <p className="mt-2 text-lg font-semibold text-foreground">{countdown}</p>
+            <p className="mt-2 text-base sm:text-lg font-semibold text-foreground">{countdown}</p>
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-foreground/70">
             <div className="flex items-center gap-2 text-foreground/80">
               <MapPin className="h-4 w-4 text-secondary" />
@@ -528,7 +622,7 @@ export default function QuestDetailsPage() {
                 {proofTypeLabel ?? "Submitted"}
               </Badge>
             </div>
-            <div className="mt-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+            <div className="mt-5 grid gap-4 grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
               <div className="space-y-3">
                 <div className="rounded-xl border border-white/10 bg-black/20 p-4">
                   <p className="text-xs uppercase tracking-widest text-foreground/50">Proof reference</p>
@@ -581,153 +675,220 @@ export default function QuestDetailsPage() {
                       </a>
                     )}
                   </div>
-                ) : proofMediaType === "video" && videoUrl && !videoError ? (
+                ) : proofMediaType === "video" && (videoBlobUrl || videoDirectUrl) && !videoError ? (
                   <div className="relative">
                     {videoLoading && !videoReady && (
                       <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-black/80">
                         <div className="text-center text-foreground/70">
                           <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-secondary" />
-                          <p className="text-xs">Loading video from IPFS...</p>
+                          <p className="text-xs">
+                            {videoLoadMethod === "blob" ? "Preparing video..." : "Loading video..."}
+                          </p>
                           {currentVideoGatewayIndex > 0 && (
                             <p className="mt-1 text-xs text-foreground/50">Trying gateway {currentVideoGatewayIndex + 1}</p>
                           )}
                         </div>
                       </div>
                     )}
-                    <video
-                      ref={(video) => {
-                        if (video && videoReady && video.videoWidth === 0 && video.videoHeight === 0) {
-                          console.warn("Video element exists but has no dimensions - possible codec issue or empty file");
-                        }
-                      }}
-                      key={`video-${videoUrl}-${currentVideoGatewayIndex}`}
-                      controls
-                      playsInline
-                      preload="auto"
-                      muted={false}
-                      src={videoUrl}
-                      className="h-64 w-full rounded-xl border border-white/10 bg-black"
-                      style={{ backgroundColor: "#000" }}
-                      onError={(e) => {
-                        console.error("Video error:", e);
-                        const videoEl = e.currentTarget;
-                        console.error("Video error details:", {
-                          networkState: videoEl.networkState,
-                          readyState: videoEl.readyState,
-                          error: videoEl.error,
-                          src: videoUrl,
-                        });
-                        setVideoLoading(false);
-                        // Try next gateway if available
-                        if (currentVideoGatewayIndex < getVideoGateways.length - 1) {
-                          setCurrentVideoGatewayIndex((prev) => prev + 1);
-                        } else {
-                          setVideoError(true);
-                        }
-                      }}
-                      onLoadStart={() => {
-                        console.log("Video load start:", videoUrl);
-                        setVideoLoading(true);
-                        setVideoReady(false);
-                      }}
-                      onLoadedMetadata={(e) => {
-                        const videoEl = e.currentTarget;
-                        console.log("Video metadata loaded:", {
-                          duration: videoEl.duration,
-                          videoWidth: videoEl.videoWidth,
-                          videoHeight: videoEl.videoHeight,
-                          readyState: videoEl.readyState,
-                        });
-                        setVideoLoading(false);
-                        // If video has dimensions, it likely has content
-                        if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
-                          setVideoReady(true);
-                        }
-                      }}
-                      onLoadedData={(e) => {
-                        const videoEl = e.currentTarget;
-                        console.log("Video data loaded:", {
-                          videoWidth: videoEl.videoWidth,
-                          videoHeight: videoEl.videoHeight,
-                          readyState: videoEl.readyState,
-                        });
-                        setVideoLoading(false);
-                        if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
-                          setVideoReady(true);
-                        }
-                      }}
-                      onCanPlay={(e) => {
-                        const videoEl = e.currentTarget;
-                        console.log("Video can play:", {
-                          videoWidth: videoEl.videoWidth,
-                          videoHeight: videoEl.videoHeight,
-                          duration: videoEl.duration,
-                        });
-                        setVideoLoading(false);
-                        // Check if video has valid dimensions
-                        if (videoEl.videoWidth === 0 && videoEl.videoHeight === 0 && videoEl.duration === 0) {
-                          console.warn("Video appears to have no content (black screen) - possible codec issue or empty file");
-                          console.warn("Video URL:", videoUrl);
-                          console.warn("Try opening the video in a new tab or check the browser console for more details");
-                        }
-                        setVideoReady(true);
-                        if (videoError) setVideoError(false);
-                      }}
-                      onCanPlayThrough={() => {
-                        setVideoLoading(false);
-                        setVideoReady(true);
-                      }}
-                      onWaiting={() => {
-                        setVideoLoading(true);
-                      }}
-                      onPlaying={(e) => {
-                        const videoEl = e.currentTarget;
-                        console.log("Video playing:", {
-                          videoWidth: videoEl.videoWidth,
-                          videoHeight: videoEl.videoHeight,
-                          currentTime: videoEl.currentTime,
-                        });
-                        setVideoLoading(false);
-                        setVideoReady(true);
-                        // If video is playing but has no dimensions after 3 seconds, warn user
-                        setTimeout(() => {
-                          if (videoEl.videoWidth === 0 && videoEl.videoHeight === 0) {
-                            console.warn("Video playing but showing black screen - possible codec issue");
-                            console.warn("Try opening the video in a new tab or use a different browser");
+                    {/* Use blob URL if available, otherwise use direct URL */}
+                    {videoBlobUrl ? (
+                      <video
+                        key={`video-blob-${videoBlobUrl}`}
+                        controls
+                        playsInline
+                        preload="auto"
+                        muted={false}
+                        autoPlay={false}
+                        className="h-64 w-full rounded-xl border border-border/50 bg-black object-contain"
+                        style={{ backgroundColor: "#000" }}
+                        onLoadedMetadata={(e) => {
+                          const videoEl = e.currentTarget;
+                          const error = videoEl.error;
+                          console.log("Video blob metadata loaded:", {
+                            duration: videoEl.duration,
+                            videoWidth: videoEl.videoWidth,
+                            videoHeight: videoEl.videoHeight,
+                            readyState: videoEl.readyState,
+                            networkState: videoEl.networkState,
+                            error: error ? { code: error.code, message: error.message } : null,
+                          });
+                          
+                          // Check if video has valid dimensions
+                          if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
+                            setVideoLoading(false);
+                            setVideoReady(true);
+                            console.log("Video has valid dimensions, should display content");
+                          } else if (error) {
+                            console.error("Video error detected:", error);
+                            setVideoError(true);
+                            setVideoLoading(false);
+                          } else {
+                            // Wait a bit more for dimensions
+                            setTimeout(() => {
+                              if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
+                                setVideoLoading(false);
+                                setVideoReady(true);
+                              } else {
+                                console.warn("Video still has no dimensions after metadata load");
+                              }
+                            }, 500);
                           }
-                        }, 3000);
-                      }}
-                      onProgress={(e) => {
-                        const videoEl = e.currentTarget;
-                        const buffered = videoEl.buffered;
-                        if (buffered.length > 0 && buffered.end(0) > 0) {
+                        }}
+                        onLoadedData={(e) => {
+                          const videoEl = e.currentTarget;
+                          console.log("Video blob data loaded:", {
+                            videoWidth: videoEl.videoWidth,
+                            videoHeight: videoEl.videoHeight,
+                            readyState: videoEl.readyState,
+                          });
+                          if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
+                            setVideoLoading(false);
+                            setVideoReady(true);
+                          }
+                        }}
+                        onCanPlay={(e) => {
+                          const videoEl = e.currentTarget;
+                          console.log("Video can play:", {
+                            videoWidth: videoEl.videoWidth,
+                            videoHeight: videoEl.videoHeight,
+                            duration: videoEl.duration,
+                          });
                           setVideoLoading(false);
-                        }
-                      }}
-                      onStalled={() => {
-                        console.warn("Video stalled - may have network issues");
-                      }}
-                    >
-                      <source src={videoUrl} type="video/mp4" />
-                      <source src={videoUrl} type="video/webm" />
-                      <source src={videoUrl} type="video/quicktime" />
-                      <source src={videoUrl} type="video/ogg" />
-                      <source src={videoUrl} />
-                      Your browser does not support the video tag.
-                    </video>
+                          setVideoReady(true);
+                          if (videoError) setVideoError(false);
+                        }}
+                        onCanPlayThrough={() => {
+                          setVideoLoading(false);
+                          setVideoReady(true);
+                        }}
+                        onError={(e) => {
+                          const videoEl = e.currentTarget;
+                          const error = videoEl.error;
+                          console.error("Video blob error:", {
+                            code: error?.code,
+                            message: error?.message,
+                            networkState: videoEl.networkState,
+                            readyState: videoEl.readyState,
+                          });
+                          setVideoError(true);
+                          setVideoLoading(false);
+                        }}
+                        onPlaying={(e) => {
+                          const videoEl = e.currentTarget;
+                          console.log("Video playing:", {
+                            videoWidth: videoEl.videoWidth,
+                            videoHeight: videoEl.videoHeight,
+                            currentTime: videoEl.currentTime,
+                          });
+                          setVideoLoading(false);
+                          setVideoReady(true);
+                        }}
+                        onWaiting={() => {
+                          setVideoLoading(true);
+                        }}
+                      >
+                        {/* Try multiple source types to ensure compatibility */}
+                        <source src={videoBlobUrl} type="video/mp4; codecs=avc1.42E01E,mp4a.40.2" />
+                        <source src={videoBlobUrl} type="video/mp4" />
+                        <source src={videoBlobUrl} type="video/webm" />
+                        <source src={videoBlobUrl} type="video/quicktime" />
+                        <source src={videoBlobUrl} />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : videoDirectUrl ? (
+                      /* Fallback: Use direct URL if blob fetch failed */
+                      <video
+                        key={`video-direct-${videoDirectUrl}-${currentVideoGatewayIndex}`}
+                        controls
+                        playsInline
+                        preload="metadata"
+                        muted={false}
+                        crossOrigin="anonymous"
+                        className="h-64 w-full rounded-xl border border-border/50 bg-black object-contain"
+                        style={{ backgroundColor: "#000" }}
+                        onError={(e) => {
+                          const videoEl = e.currentTarget;
+                          const error = videoEl.error;
+                          console.error("Direct video URL error:", {
+                            code: error?.code,
+                            message: error?.message,
+                            networkState: videoEl.networkState,
+                            readyState: videoEl.readyState,
+                            url: videoDirectUrl,
+                          });
+                          setVideoLoading(false);
+                          // Try next gateway if available
+                          if (currentVideoGatewayIndex < getVideoGateways.length - 1) {
+                            setTimeout(() => {
+                              setCurrentVideoGatewayIndex((prev) => prev + 1);
+                            }, 1000);
+                          } else {
+                            setVideoError(true);
+                          }
+                        }}
+                        onLoadedMetadata={(e) => {
+                          const videoEl = e.currentTarget;
+                          console.log("Direct video metadata loaded:", {
+                            videoWidth: videoEl.videoWidth,
+                            videoHeight: videoEl.videoHeight,
+                            duration: videoEl.duration,
+                          });
+                          if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
+                            setVideoLoading(false);
+                            setVideoReady(true);
+                          }
+                        }}
+                        onLoadedData={(e) => {
+                          const videoEl = e.currentTarget;
+                          if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
+                            setVideoLoading(false);
+                            setVideoReady(true);
+                          }
+                        }}
+                        onCanPlay={() => {
+                          setVideoLoading(false);
+                          setVideoReady(true);
+                          if (videoError) setVideoError(false);
+                        }}
+                        onCanPlayThrough={() => {
+                          setVideoLoading(false);
+                          setVideoReady(true);
+                        }}
+                        onPlaying={() => {
+                          setVideoLoading(false);
+                          setVideoReady(true);
+                        }}
+                        onWaiting={() => {
+                          setVideoLoading(true);
+                        }}
+                      >
+                        {videoDirectUrl && (() => {
+                          const videoType = detectVideoType(videoDirectUrl);
+                          return (
+                            <>
+                              <source src={videoDirectUrl} type={videoType} />
+                              <source src={videoDirectUrl} type="video/mp4" />
+                              <source src={videoDirectUrl} type="video/webm" />
+                              <source src={videoDirectUrl} />
+                            </>
+                          );
+                        })()}
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : null}
                     {videoReady && !videoLoading && (
                       <div className="absolute bottom-2 right-2 rounded bg-black/70 px-2 py-1 text-xs text-foreground/70">
-                        {currentVideoGatewayIndex === 0 ? "Primary gateway" : `Gateway ${currentVideoGatewayIndex + 1}`}
+                        {videoLoadMethod === "blob" ? "Loaded via blob" : currentVideoGatewayIndex === 0 ? "Direct" : `Gateway ${currentVideoGatewayIndex + 1}`}
                       </div>
                     )}
-                    {videoReady && !videoLoading && videoUrl && (
+                    {videoReady && !videoLoading && (videoBlobUrl || videoDirectUrl) && (
                       <div className="absolute bottom-2 left-2">
                         <a
-                          href={videoUrl}
+                          href={videoDirectUrl || videoBlobUrl || ""}
                           target="_blank"
                           rel="noreferrer"
                           className="rounded bg-black/70 px-2 py-1 text-xs text-secondary hover:underline"
-                          title="Open video in new tab (may work better if showing black screen)"
+                          title="Open video in new tab"
                         >
                           Open in new tab
                         </a>
@@ -813,4 +974,5 @@ export default function QuestDetailsPage() {
     </div>
   );
 }
+
 

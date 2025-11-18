@@ -282,21 +282,21 @@ export default function DashboardPage() {
   }, [address, quests]);
 
   return (
-    <div className="relative mx-auto w-full max-w-6xl px-4 py-12">
-      <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+    <div className="relative mx-auto w-full max-w-6xl px-4 sm:px-6 py-6 sm:py-8 md:py-12">
+      <div className="mb-6 sm:mb-8 md:mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex-1">
           <Badge variant="primary" className="gap-2">
             <Crown className="h-4 w-4" />
             {level} League
           </Badge>
-          <h1 className="mt-3 text-3xl font-semibold text-foreground sm:text-4xl">
+          <h1 className="mt-3 text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground">
             Welcome back, {primaryLabel}
           </h1>
-          <p className="text-sm text-foreground/70">
+          <p className="mt-1 text-xs sm:text-sm text-foreground/70">
             {secondaryLabel}
           </p>
         </div>
-        <Button asChild className="rounded-full px-6">
+        <Button asChild className="rounded-full px-4 sm:px-6 text-sm sm:text-base w-full sm:w-auto">
           <Link href="/quests">
             Find new quests
             <ArrowRight className="ml-2 h-4 w-4" />
@@ -304,7 +304,7 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1.6fr_1fr]">
         <div className="space-y-6">
           <motion.div
             variants={gridVariant}
@@ -385,8 +385,8 @@ export default function DashboardPage() {
                     next tier.
                   </p>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-4">
+                  <div className="rounded-2xl border border-border/50 bg-card/50 p-3 sm:p-4">
                     <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-foreground/60">
                       <Flame className="h-4 w-4 text-secondary" />
                       Streak
@@ -394,23 +394,33 @@ export default function DashboardPage() {
                     <p className="mt-2 text-2xl font-semibold text-foreground">{streak.current} days</p>
                     <p className="text-[11px] text-foreground/50">Best streak {streak.best} days</p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div className="rounded-2xl border border-border/50 bg-card/50 p-4">
                     <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-foreground/60">
                       <Trophy className="h-4 w-4 text-secondary" />
                       Completed
                     </div>
                     <p className="mt-2 text-2xl font-semibold text-foreground">
-                      {progress.filter((item) => item.status === "completed").length}
+                      {myCompletedQuests.length}
                     </p>
-                    <p className="text-[11px] text-foreground/50">All-time missions</p>
+                    <p className="text-[11px] text-foreground/50">Quests finished</p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div className="rounded-2xl border border-border/50 bg-card/50 p-4">
                     <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-foreground/60">
                       <Map className="h-4 w-4 text-secondary" />
+                      Created
+                    </div>
+                    <p className="mt-2 text-2xl font-semibold text-foreground">
+                      {myCreatedQuests.length}
+                    </p>
+                    <p className="text-[11px] text-foreground/50">Quests launched</p>
+                  </div>
+                  <div className="rounded-2xl border border-border/50 bg-card/50 p-4">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-foreground/60">
+                      <Clock className="h-4 w-4 text-secondary" />
                       In progress
                     </div>
                     <p className="mt-2 text-2xl font-semibold text-foreground">
-                      {progress.filter((item) => item.status === "accepted" || item.status === "in-progress").length}
+                      {myInProgressQuests.length}
                     </p>
                     <p className="text-[11px] text-foreground/50">Active quests</p>
                   </div>

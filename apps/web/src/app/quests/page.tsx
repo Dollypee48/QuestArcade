@@ -95,34 +95,35 @@ const [rewardRange, setRewardRange] = useState<[number, number]>([0, DEFAULT_REW
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-12">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-6 sm:py-8 md:py-12">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex-1">
           <Badge variant="accent" className="gap-2">
             <Filter className="h-4 w-4" />
             Quest directory
           </Badge>
-          <h1 className="mt-3 text-3xl font-semibold text-foreground sm:text-4xl">
+          <h1 className="mt-3 text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground">
             Choose your next mission
           </h1>
-          <p className="text-sm text-foreground/70">
+          <p className="mt-2 text-xs sm:text-sm text-foreground/70">
             Discover quests funded by merchants, NGOs, and community partners. Filter by reward, location,
             or proof requirements.
           </p>
         </div>
-        <div className="flex gap-3">
-          <div className="relative w-full sm:w-60">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/40" />
+        <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:flex-none sm:w-60">
+            <Search className="pointer-events-none absolute left-3 sm:left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground/40" />
             <Input
               placeholder="Search quests"
-              className="rounded-full pl-12"
+              className="rounded-full pl-10 sm:pl-12 text-sm"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
             />
           </div>
           <Button
             variant="outline"
-            className="rounded-full border-white/20"
+            size="icon"
+            className="rounded-full border-white/20 flex-shrink-0"
             onClick={() => refresh()}
             disabled={isSyncing}
           >
@@ -131,7 +132,7 @@ const [rewardRange, setRewardRange] = useState<[number, number]>([0, DEFAULT_REW
         </div>
       </div>
 
-      <div className="mt-10 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="mt-6 sm:mt-8 md:mt-10 grid gap-6 md:gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="space-y-6">
           <QuestFilters
             location={locationQuery}

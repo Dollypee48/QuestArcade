@@ -257,30 +257,77 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/70 backdrop-blur-xl">
-      <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-2 px-6 md:px-8 lg:px-12 md:gap-4">
-        <div className="flex items-center gap-2 md:flex-[1.2] md:gap-4">
+      <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-2 px-4 sm:px-6 md:px-8 lg:px-12">
+        {/* Logo - Left Side */}
+        <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+          <Link href="/" className="flex items-center gap-2 md:gap-3">
+            <motion.div
+              className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-primary shadow-glow"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="text-base sm:text-lg font-bold text-[#0B041A]">QA</span>
+            </motion.div>
+            <div className="hidden flex-col sm:flex">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] text-foreground/70">
+                QuestArcade
+              </span>
+              <span className="text-[10px] sm:text-xs text-foreground/50">Complete missions. Earn cUSD.</span>
+            </div>
+          </Link>
+        </div>
+
+        {/* Desktop Navigation - Center */}
+        <nav className="hidden flex-1 items-center justify-center gap-3 md:flex lg:gap-5 whitespace-nowrap mx-4">
+          {renderNavLinks("horizontal")}
+        </nav>
+
+        {/* Right Side - Desktop Actions & Mobile Hamburger */}
+        <div className="flex items-center justify-end gap-2 sm:gap-3 md:gap-4 flex-shrink-0">
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center gap-3 lg:gap-4">
+            <ThemeToggle />
+            {isConnected && address ? (
+              <div className="flex items-center gap-2 lg:gap-3">
+                <WalletDropdown address={address} />
+                <NetworkSwitcher />
+              </div>
+            ) : (
+              <>
+                {showMinipayBadge && (
+                  <Badge variant="primary" className="hidden items-center gap-2 lg:inline-flex">
+                    <Wallet className="h-3.5 w-3.5" />
+                    MiniPay Available
+                  </Badge>
+                )}
+                <ConnectButton />
+              </>
+            )}
+          </div>
+
+          {/* Mobile Hamburger Menu - Right Side */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
+              <Button variant="ghost" size="icon" className="md:hidden h-9 w-9">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-80 border-border/50 bg-background text-foreground">
-              <div className="mb-10 flex items-center justify-between">
+            <SheetContent side="right" className="w-[85vw] max-w-sm border-border/50 bg-background text-foreground sm:w-80">
+              <div className="mb-8 flex items-center justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-foreground/60">QuestArcade</p>
-                  <p className="text-lg font-semibold text-foreground">Play-to-Earn Missions</p>
+                  <p className="text-base sm:text-lg font-semibold text-foreground">Play-to-Earn Missions</p>
                 </div>
                 <SheetClose asChild>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
                     <span className="sr-only">Close</span>
-                    <ShieldCheck className="h-5 w-5 text-primary" />
+                    <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   </Button>
                 </SheetClose>
               </div>
-              <nav className="flex flex-col gap-2">{renderNavLinks("vertical")}</nav>
-              <div className="mt-8 space-y-4 rounded-2xl border border-border/50 bg-card/50 p-4">
+              <nav className="flex flex-col gap-1">{renderNavLinks("vertical")}</nav>
+              <div className="mt-6 space-y-4 rounded-2xl border border-border/50 bg-card/50 p-4">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold text-foreground">Theme</p>
                   <ThemeToggle />
@@ -301,56 +348,24 @@ export function Navbar() {
                   <>
                     <div>
                       <p className="text-sm font-semibold text-foreground">MiniPay Wallet</p>
-                      <p className="mt-1 text-sm text-foreground/70">
+                      <p className="mt-1 text-xs sm:text-sm text-foreground/70">
                         Earn cUSD rewards instantly when you complete quests with MiniPay.
                       </p>
                     </div>
-                    <ConnectButton />
+                    <div className="mt-3">
+                      <ConnectButton />
+                    </div>
+                    {showMinipayBadge && (
+                      <Badge variant="primary" className="mt-2 w-full justify-center items-center gap-2">
+                        <Wallet className="h-3.5 w-3.5" />
+                        MiniPay Available
+                      </Badge>
+                    )}
                   </>
                 )}
               </div>
             </SheetContent>
           </Sheet>
-
-          <Link href="/" className="flex items-center gap-2 md:gap-3">
-            <motion.div
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-glow"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <span className="text-lg font-bold text-[#0B041A]">QA</span>
-            </motion.div>
-            <div className="hidden flex-col md:flex">
-              <span className="text-sm font-semibold uppercase tracking-[0.25em] text-foreground/70">
-                QuestArcade
-              </span>
-              <span className="text-xs text-foreground/50">Complete missions. Earn cUSD.</span>
-            </div>
-          </Link>
-        </div>
-
-        <nav className="hidden flex-1 items-center justify-center gap-4 md:flex lg:gap-5 whitespace-nowrap">
-          {renderNavLinks("horizontal")}
-        </nav>
-
-        <div className="hidden flex items-center justify-end gap-3 md:flex md:flex-[1.2] lg:gap-4">
-          <ThemeToggle />
-          {isConnected && address ? (
-            <div className="flex items-center gap-3">
-              <WalletDropdown address={address} />
-              <NetworkSwitcher />
-            </div>
-          ) : (
-            <>
-              {showMinipayBadge && (
-                <Badge variant="primary" className="hidden items-center gap-2 md:inline-flex">
-                  <Wallet className="h-3.5 w-3.5" />
-                  MiniPay Available
-                </Badge>
-              )}
-              <ConnectButton />
-            </>
-          )}
         </div>
       </div>
     </header>

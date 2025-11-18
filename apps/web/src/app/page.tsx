@@ -170,14 +170,14 @@ export default function Home() {
 
   return (
 <main className="flex-1">
-      <section className="relative overflow-hidden pt-20 pb-24 sm:pt-24">
-        <div className="container relative z-10 mx-auto max-w-6xl px-4 text-center">
+      <section className="relative overflow-hidden pt-16 sm:pt-20 pb-16 sm:pb-24">
+        <div className="container relative z-10 mx-auto max-w-6xl px-4 sm:px-6 text-center">
           <Badge variant="primary" className="mx-auto mb-6 w-fit gap-2 px-4 py-1.5">
             <Sparkles className="h-3.5 w-3.5" />
             QuestArcade Missions
           </Badge>
           <motion.h1
-            className="mx-auto max-w-4xl text-4xl font-bold leading-tight text-foreground sm:text-6xl lg:text-[4.5rem]"
+            className="mx-auto max-w-4xl text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground"
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -188,7 +188,7 @@ export default function Home() {
             </span>
           </motion.h1>
           <motion.p
-            className="mx-auto mt-6 max-w-2xl text-lg text-foreground/80 sm:text-xl"
+            className="mx-auto mt-4 sm:mt-6 max-w-2xl text-base sm:text-lg md:text-xl text-foreground/80"
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
@@ -314,7 +314,7 @@ export default function Home() {
             Built with Celo Composer, MiniPay, and IPFS for tamper-proof verification. Mobile-first
             by design, so every mission feels like a game level with real payouts.
           </p>
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
+          <div className="mt-8 sm:mt-12 grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3">
             {howItWorks.map((item) => (
               <motion.div
                 key={item.label}
