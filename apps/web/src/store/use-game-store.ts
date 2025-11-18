@@ -24,7 +24,8 @@ export type Quest = {
   tags?: string[];
   xp: number;
   metadataUri?: string;
-  onChainState?: "draft" | "active" | "accepted" | "submitted" | "verified" | "rejected" | "cancelled";
+  onChainState?: "draft" | "active" | "accepted" | "submitted" | "verified" | "rejected" | "cancelled" | "expired";
+  isExpired?: boolean; // True if deadline passed and quest not completed
   isEscrowFunded?: boolean;
   rewardClaimed?: boolean;
   creator?: `0x${string}`;

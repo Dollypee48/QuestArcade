@@ -827,6 +827,38 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
     [address, ensureWalletReady, handleSettled, publicClient, questArcadeAddress, stableTokenAddress, writeContractAsync]
   );
 
+  const cancelQuest = useCallback(
+    async (questId: string) => {
+      try {
+        ensureWalletReady();
+        const id = parseQuestId(questId);
+        if (id === 0n) {
+          throw new Error("Invalid quest identifier.");
+        }
+        setCancelState({ status: "pending", questId });
+
+        const hash = await writeContractAsync({
+          account: address,
+          address: questArcadeAddress!,
+          abi: QUEST_ARCADE_ABI,
+          functionName: "cancelQuest",
+          args: [id],
+        });
+
+        await publicClient!.waitForTransactionReceipt({ hash });
+        setCancelState({ status: "success", questId });
+        toast.success("Quest cancelled and refund processed.");
+        await handleSettled();
+      } catch (error) {
+        const errorMessage = formatError(error);
+        setCancelState({ status: "error", questId, error: errorMessage });
+        toast.error(errorMessage);
+        throw error;
+      }
+    },
+    [address, ensureWalletReady, handleSettled, publicClient, questArcadeAddress, writeContractAsync]
+  );
+
   return {
     createQuest,
     acceptQuest,
@@ -834,6 +866,7 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
     verifyQuest,
     claimReward,
     updateQuest,
+    cancelQuest,
     states: {
       create: createState,
       accept: acceptState,
@@ -841,6 +874,7 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
       verify: verifyState,
       claim: claimState,
       update: updateState,
+      cancel: cancelState,
     },
     helpers: {
       formatReward: (amount: bigint) => formatUnits(amount, STABLE_DECIMALS),

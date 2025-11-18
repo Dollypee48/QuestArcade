@@ -36,6 +36,10 @@ const [rewardRange, setRewardRange] = useState<[number, number]>([0, DEFAULT_REW
 
   const filteredQuests = useMemo(() => {
     return quests.filter((quest) => {
+      // Filter out expired quests from main listing
+      if (quest.isExpired) {
+        return false;
+      }
       // Only show Open/Available quests in the main listing (not completed/verified/rejected)
       const isAvailable =
         !quest.onChainState ||

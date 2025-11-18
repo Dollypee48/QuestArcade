@@ -77,7 +77,7 @@ export default function QuestDetailsPage() {
   const [videoLoadMethod, setVideoLoadMethod] = useState<"blob" | "direct">("direct");
 
   const { refresh } = useQuestArcadeSync();
-  const { acceptQuest, submitProof, verifyQuest, claimReward, states } = useQuestActions({ onSettled: refresh });
+  const { acceptQuest, submitProof, verifyQuest, claimReward, cancelQuest, states } = useQuestActions({ onSettled: refresh });
 
   const quest = useMemo(() => quests.find((item) => item.id === params?.id), [quests, params?.id]);
   const progress = useGameStore((state) => state.progress);
@@ -291,7 +291,16 @@ export default function QuestDetailsPage() {
   const isCompleted = quest?.onChainState === "verified" && quest?.rewardClaimed;
   const isRejected = quest?.onChainState === "rejected";
   const isVerified = quest?.onChainState === "verified";
-  const countdown = quest?.timeLimitHours ? `${quest.timeLimitHours} hours remaining` : "No time limit";
+  const isExpired = quest?.isExpired ?? false;
+  const canRefund = isExpired && isCreator && quest?.isEscrowFunded && 
+    (quest?.onChainState === "active" || (quest?.onChainState === "accepted" && !quest?.proof?.cid));
+  const countdown = isExpired 
+    ? "Expired" 
+    : quest?.timeLimitHours !== undefined 
+      ? quest.timeLimitHours > 0 
+        ? `${quest.timeLimitHours} hours remaining` 
+        : "Expired"
+      : "No time limit";
   const proofTypeLabel = formatProofTypeLabel(quest?.proof?.proofType);
   
   if (!quest) {
@@ -343,12 +352,14 @@ export default function QuestDetailsPage() {
             </div>
             <h1 className="mt-4 text-3xl font-semibold text-foreground">{quest.title}</h1>
             <p className="mt-3 max-w-2xl text-sm text-foreground/70">{quest.description}</p>
-            {(isCompleted || isRejected || isVerified) && (
+            {(isCompleted || isRejected || isVerified || isExpired) && (
               <div className="mt-3">
                 <Badge
                   variant={isCompleted || (isVerified && !quest?.rewardClaimed) ? "accent" : "default"}
                   className={`text-[10px] uppercase tracking-widest ${
                     isRejected ? "border border-destructive/40 text-destructive" : ""
+                  } ${
+                    isExpired ? "border border-warning/40 text-warning" : ""
                   }`}
                 >
                   {isCompleted
@@ -357,7 +368,9 @@ export default function QuestDetailsPage() {
                       ? "Verified"
                       : isRejected
                         ? "Rejected"
-                        : quest?.onChainState}
+                        : isExpired
+                          ? "Expired"
+                          : quest?.onChainState}
                 </Badge>
                 {isCompleted && (
                   <p className="mt-2 text-xs text-foreground/60">
@@ -368,6 +381,16 @@ export default function QuestDetailsPage() {
                 {isRejected && (
                   <p className="mt-2 text-xs text-foreground/60">
                     This quest submission was rejected. This is a read-only view of the quest history.
+                  </p>
+                )}
+                {isExpired && canRefund && (
+                  <p className="mt-2 text-xs text-foreground/60">
+                    This quest has expired. You can cancel it to receive a refund of the escrowed reward.
+                  </p>
+                )}
+                {isExpired && !canRefund && (
+                  <p className="mt-2 text-xs text-foreground/60">
+                    This quest has expired and is no longer available.
                   </p>
                 )}
               </div>
@@ -437,13 +460,23 @@ export default function QuestDetailsPage() {
               </Link>
             </Button>
           )}
-          {!isCreator && (
+          {!isCreator && !isExpired && (
             <Button
               className="rounded-full px-6"
               onClick={() => acceptQuest(quest!.id)}
               disabled={isAccepting || hasAcceptedQuest}
             >
               {hasAcceptedQuest ? "Quest accepted" : isAccepting ? "Accepting…" : "Accept quest"}
+            </Button>
+          )}
+          {canRefund && (
+            <Button
+              variant="secondary"
+              className="rounded-full border border-warning/40 text-warning px-6"
+              onClick={() => cancelQuest(quest!.id)}
+              disabled={states.cancel.status === "pending"}
+            >
+              {states.cancel.status === "pending" ? "Cancelling…" : "Cancel & Refund"}
             </Button>
           )}
           {canClaimReward && (

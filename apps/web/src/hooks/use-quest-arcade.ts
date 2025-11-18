@@ -105,7 +105,17 @@ const calculateHoursRemaining = (deadline?: number) => {
   if (!deadline || deadline <= 0) {
     return undefined;
   }
-  return Math.max(0, Math.ceil((deadline - Date.now() / 1000) / 3600));
+  const now = Math.floor(Date.now() / 1000);
+  const remaining = Math.ceil((deadline - now) / 3600);
+  return Math.max(0, remaining);
+};
+
+const isQuestExpired = (deadline?: number): boolean => {
+  if (!deadline || deadline <= 0) {
+    return false;
+  }
+  const now = Math.floor(Date.now() / 1000);
+  return deadline <= now;
 };
 
 const QUEST_STATUS_LABELS: Record<number, Quest["onChainState"]> = {
@@ -323,6 +333,7 @@ export function useQuestArcadeSync() {
           const baseReward = Number(formatUnits(quest.rewardAmount, STABLE_DECIMALS));
           const deadline = Number(quest.deadline);
           const hoursRemaining = calculateHoursRemaining(deadline);
+          const isExpired = isQuestExpired(deadline);
           const verificationIndex = Number(quest.verificationType ?? 0);
           const rawProofMetadata = quest.proofMetadata?.trim() ?? "";
           const parsedProof = parseProofMetadata(rawProofMetadata);
@@ -330,10 +341,14 @@ export function useQuestArcadeSync() {
             rawProofMetadata && !parsedProof ? rawProofMetadata : "On-chain quest";
           const questProof = mapQuestProof(quest.proofCID, parsedProof);
           const workerAddress = normalizeAddress(quest.worker);
-          const statusLabel = mapQuestStatusLabel(Number(quest.status));
+          let statusLabel = mapQuestStatusLabel(Number(quest.status));
 
           const difficulty: Quest["difficulty"] =
             baseReward >= 50 ? "Hard" : baseReward >= 25 ? "Medium" : "Easy";
+
+          // Determine if quest is expired and can be refunded
+          const canRefund = isExpired && quest.rewardEscrowed && 
+            (statusLabel === "active" || (statusLabel === "accepted" && !quest.proofCID));
 
           let questData: Quest = {
             id: questId,
@@ -351,6 +366,7 @@ export function useQuestArcadeSync() {
             worker: workerAddress,
             proof: questProof,
             onChainState: statusLabel,
+            isExpired: canRefund,
             isEscrowFunded: quest.rewardEscrowed,
             rewardClaimed: quest.rewardClaimed,
           };
@@ -368,15 +384,21 @@ export function useQuestArcadeSync() {
                 const registryQuest = mapRegistryQuest(registryQuestRaw);
                 registryMetadataMap.set(questId, registryQuest);
 
+                const registryDeadline = registryQuest.deadline ? Number(registryQuest.deadline) : undefined;
+                const registryIsExpired = registryDeadline ? isQuestExpired(registryDeadline) : false;
+                const registryCanRefund = registryIsExpired && questData.isEscrowFunded && 
+                  (questData.onChainState === "active" || (questData.onChainState === "accepted" && !quest.proofCID));
+
                 questData = {
                   ...questData,
                   title: registryQuest.title ?? questData.title,
                   description: registryQuest.description ?? questData.description,
                   reward: registryQuest.rewardAmount ?? questData.reward,
-                  timeLimitHours: calculateHoursRemaining(registryQuest.deadline) ?? questData.timeLimitHours,
+                  timeLimitHours: calculateHoursRemaining(registryDeadline) ?? questData.timeLimitHours,
                   metadataUri: registryQuest.metadataUri ?? questData.metadataUri,
                   onChainState: questData.onChainState ?? mapRegistryStateLabel(registryQuest.state),
                   tags: combineTags(questData.tags, registryQuest.metadataUri ? "Registry" : undefined),
+                  isExpired: registryCanRefund || questData.isExpired,
                 };
               }
             } catch (error) {
