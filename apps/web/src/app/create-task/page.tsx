@@ -129,10 +129,10 @@ export default function CreateTaskPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="quest-location">Location</Label>
+              <Label htmlFor="quest-location">Location (optional)</Label>
               <Input
                 id="quest-location"
-                placeholder="City, venue, or coordinates"
+                placeholder="City, venue, or coordinates (optional)"
                 value={location}
                 onChange={(event) => setLocation(event.target.value)}
               />
