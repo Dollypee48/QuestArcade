@@ -102,9 +102,9 @@ const [rewardRange, setRewardRange] = useState<[number, number]>([0, DEFAULT_REW
     <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 py-6 sm:py-8 md:py-12">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex-1">
-          <Badge variant="accent" className="gap-2">
+          <Badge variant="accent" className="gap-2 border-2 font-bold">
             <Filter className="h-4 w-4" />
-            Quest directory
+            🎯 Quest Directory
           </Badge>
           <h1 className="mt-3 text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground">
             Choose your next mission

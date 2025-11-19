@@ -333,21 +333,21 @@ export default function QuestDetailsPage() {
       </Link>
 
       <motion.section
-        className="glass-card space-y-6 rounded-[32px] border border-white/10 bg-white/5 p-8 shadow-glow"
+        className="glass-card space-y-6 rounded-2xl border-2 border-foreground/20 bg-card/80 p-8 shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <Badge variant="primary" className="border-0 px-3 py-1 text-[10px] uppercase tracking-wider">
-                {quest?.difficulty}
+              <Badge variant="primary" className="border-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider">
+                ⚡ {quest?.difficulty}
               </Badge>
-              <Badge variant="accent" className="text-[11px]">
-                Reward cUSD {quest.reward}
+              <Badge variant="accent" className="border-2 text-[11px] font-bold">
+                💰 cUSD {quest.reward}
               </Badge>
-              <Badge variant="default" className="text-[11px]">
-                +{quest.xp} XP
+              <Badge variant="default" className="border-2 text-[11px] font-bold">
+                🏆 +{quest.xp} XP
               </Badge>
             </div>
             <h1 className="mt-4 text-3xl font-semibold text-foreground">{quest.title}</h1>
@@ -396,9 +396,9 @@ export default function QuestDetailsPage() {
               </div>
             )}
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 px-4 sm:px-5 py-3 sm:py-4 text-left sm:text-right w-full sm:w-auto">
-            <p className="text-xs uppercase tracking-widest text-foreground/60">Countdown</p>
-            <p className="mt-2 text-base sm:text-lg font-semibold text-foreground">{countdown}</p>
+          <div className="rounded-xl border-2 border-foreground/20 bg-card/80 px-4 sm:px-5 py-3 sm:py-4 text-left sm:text-right w-full sm:w-auto shadow-[0_4px_8px_rgba(0,0,0,0.15)]">
+            <p className="text-xs font-bold uppercase tracking-widest text-foreground/70">⏰ Countdown</p>
+            <p className="mt-2 text-base sm:text-lg font-bold text-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">{countdown}</p>
           </div>
         </div>
 
@@ -419,31 +419,24 @@ export default function QuestDetailsPage() {
             </div>
             <p className="mt-2 text-xs uppercase tracking-widest text-foreground/50">Proof required</p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-foreground/70">
-            <div className="flex items-center gap-2 text-foreground/80">
-              <Clock className="h-4 w-4 text-secondary" />
-              Time requirement
+          <div className="rounded-xl border-2 border-foreground/20 bg-card/80 p-4 text-sm shadow-[0_4px_8px_rgba(0,0,0,0.15)]">
+            <div className="flex items-center gap-2 font-bold text-foreground/90">
+              <Clock className="h-4 w-4 text-purple-500" />
+              ⏰ Time Limit
             </div>
-            <p className="mt-1 text-xs uppercase tracking-widest text-foreground/50">
+            <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-foreground/60">
               {quest.timeLimitHours ? `${quest.timeLimitHours} hours` : "Flexible"}
             </p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-foreground/70">
-            <div className="flex items-center gap-2 text-foreground/80">
-              <Trophy className="h-4 w-4 text-secondary" />
-              Season bonus
-            </div>
-            <p className="mt-1 text-xs uppercase tracking-widest text-foreground/50">+10% streak bonus</p>
-          </div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-foreground/70">
-          <h2 className="text-lg font-semibold text-foreground">Quest checklist</h2>
-          <ul className="mt-3 space-y-2">
-            <li>• Meet the partner on-site and verify the MiniPay wallet.</li>
-            <li>• Help the partner accept at least one cUSD payment.</li>
-            <li>• Record proof (photo/video) and capture GPS coordinates.</li>
-            <li>• Submit the quest proof before the timer expires.</li>
+        <div className="rounded-xl border-2 border-foreground/20 bg-card/80 p-5 text-sm shadow-[0_4px_8px_rgba(0,0,0,0.15)]">
+          <h2 className="text-lg font-bold text-foreground">📋 Quest Checklist</h2>
+          <ul className="mt-3 space-y-2 font-semibold">
+            <li>✅ Meet the partner on-site and verify the MiniPay wallet.</li>
+            <li>✅ Help the partner accept at least one cUSD payment.</li>
+            <li>✅ Record proof (photo/video) and capture GPS coordinates.</li>
+            <li>✅ Submit the quest proof before the timer expires.</li>
           </ul>
         </div>
 
@@ -452,7 +445,7 @@ export default function QuestDetailsPage() {
             <Button
               asChild
               variant="outline"
-              className="rounded-full border-white/20 px-6"
+              className="rounded-lg border-2 font-bold uppercase tracking-wide px-6"
             >
               <Link href={`/quests/${quest.id}/edit`}>
                 <Edit className="mr-2 h-4 w-4" />
@@ -462,17 +455,17 @@ export default function QuestDetailsPage() {
           )}
           {!isCreator && !isExpired && (
             <Button
-              className="rounded-full px-6"
+              className="rounded-lg px-6 font-bold uppercase tracking-wide"
               onClick={() => acceptQuest(quest!.id)}
               disabled={isAccepting || hasAcceptedQuest}
             >
-              {hasAcceptedQuest ? "Quest accepted" : isAccepting ? "Accepting…" : "Accept quest"}
+              {hasAcceptedQuest ? "✓ Accepted" : isAccepting ? "⚡ Accepting…" : "🎯 Accept Quest"}
             </Button>
           )}
           {canRefund && (
             <Button
               variant="secondary"
-              className="rounded-full border border-warning/40 text-warning px-6"
+              className="rounded-lg border-2 font-bold uppercase tracking-wide px-6"
               onClick={() => cancelQuest(quest!.id)}
               disabled={states.cancel.status === "pending"}
             >
@@ -482,21 +475,21 @@ export default function QuestDetailsPage() {
           {canClaimReward && (
             <Button
               variant="secondary"
-              className="rounded-full border border-white/20 px-6"
+              className="rounded-lg border-2 font-bold uppercase tracking-wide px-6"
               onClick={() => claimReward(quest!.id)}
               disabled={isClaiming}
             >
-              {isClaiming ? "Claiming…" : "Claim reward"}
+              {isClaiming ? "⚡ Claiming…" : "💰 Claim Reward"}
             </Button>
           )}
           <Dialog open={isProofModalOpen} onOpenChange={setIsProofModalOpen}>
             <DialogTrigger asChild>
               <Button
-                variant="ghost"
-                className="rounded-full border border-white/20 px-6"
+                variant="outline"
+                className="rounded-lg border-2 font-bold uppercase tracking-wide px-6"
                 disabled={!hasAcceptedQuest || hasSubmittedProof}
               >
-                {hasSubmittedProof ? "Proof submitted" : "Submit proof"}
+                {hasSubmittedProof ? "✓ Proof Submitted" : "📸 Submit Proof"}
               </Button>
             </DialogTrigger>
             <DialogContent className="w-full max-w-xl border-white/10 bg-gradient-secondary text-foreground max-h-[85vh] overflow-y-auto">
@@ -984,21 +977,21 @@ export default function QuestDetailsPage() {
               </div>
             </div>
             {canReviewSubmission && (
-              <div className="mt-6 flex flex-col gap-3 border-t border-white/10 pt-4 md:flex-row md:items-center md:justify-end">
+              <div className="mt-6 flex flex-col gap-3 border-t-2 border-foreground/20 pt-4 md:flex-row md:items-center md:justify-end">
                 <Button
                   variant="outline"
-                  className="rounded-full border-red-400/60 px-6 text-red-300 hover:text-red-200"
+                  className="rounded-lg border-2 border-red-500/50 bg-red-500/10 px-6 font-bold uppercase tracking-wide text-red-500 hover:bg-red-500/20"
                   onClick={() => verifyQuest({ questId: quest!.id, approve: false })}
                   disabled={isVerifying}
                 >
-                  {isVerifying ? "Processing…" : "Reject proof"}
+                  {isVerifying ? "⚡ Processing…" : "❌ Reject Proof"}
                 </Button>
                 <Button
-                  className="rounded-full px-6"
+                  className="rounded-lg px-6 font-bold uppercase tracking-wide"
                   onClick={() => verifyQuest({ questId: quest!.id, approve: true })}
                   disabled={isVerifying}
                 >
-                  {isVerifying ? "Processing…" : "Approve & release reward"}
+                  {isVerifying ? "⚡ Processing…" : "✅ Approve & Release Reward"}
                 </Button>
               </div>
             )}

@@ -285,9 +285,9 @@ export default function DashboardPage() {
     <div className="relative mx-auto w-full max-w-6xl px-4 sm:px-6 py-6 sm:py-8 md:py-12">
       <div className="mb-6 sm:mb-8 md:mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1">
-          <Badge variant="primary" className="gap-2">
+          <Badge variant="primary" className="gap-2 border-2 font-bold">
             <Crown className="h-4 w-4" />
-            {level} League
+            🏆 {level} League
           </Badge>
           <h1 className="mt-3 text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground">
             Welcome back, {primaryLabel}
@@ -310,13 +310,13 @@ export default function DashboardPage() {
             variants={gridVariant}
             initial="hidden"
             animate="show"
-            className="glass-card rounded-[28px] border border-white/10 bg-white/5"
+            className="glass-card rounded-2xl border-2 border-foreground/20 bg-card/80 shadow-[0_6px_16px_rgba(0,0,0,0.2)]"
           >
             <Card className="border-0 bg-transparent">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <div className="h-16 w-16 overflow-hidden rounded-2xl border border-white/15 bg-white/10 flex items-center justify-center relative">
+                    <div className="h-16 w-16 overflow-hidden rounded-xl border-2 border-foreground/30 bg-card shadow-[0_4px_8px_rgba(0,0,0,0.2)] flex items-center justify-center relative">
                       {avatarError || !avatarUrl || avatarUrl === "/avatars/default.png" || avatarUrl.trim() === "" ? (
                         <div className="w-full h-full flex items-center justify-center text-2xl font-semibold text-foreground">
                           {primaryLabel.charAt(0).toUpperCase() || "U"}
@@ -353,8 +353,8 @@ export default function DashboardPage() {
                         </>
                       )}
                     </div>
-                    <Badge variant="accent" className="absolute -bottom-2 left-1/2 w-max -translate-x-1/2">
-                      {level}
+                    <Badge variant="primary" className="absolute -bottom-2 left-1/2 w-max -translate-x-1/2 border-2 font-bold">
+                      🏆 {level}
                     </Badge>
                   </div>
                   <div>
@@ -364,9 +364,9 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-right">
-                  <p className="text-xs uppercase tracking-widest text-foreground/60">Wallet balance</p>
-                  <p className="text-2xl font-semibold text-foreground">
+                <div className="rounded-xl border-2 border-foreground/20 bg-card/80 px-5 py-3 text-right shadow-[0_4px_8px_rgba(0,0,0,0.15)]">
+                  <p className="text-xs font-bold uppercase tracking-widest text-foreground/70">💰 Wallet Balance</p>
+                  <p className="text-2xl font-bold text-foreground drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)]">
                     cUSD {formattedBalance}
                   </p>
                 </div>
@@ -386,43 +386,43 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-4">
-                  <div className="rounded-2xl border border-border/50 bg-card/50 p-3 sm:p-4">
-                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-foreground/60">
-                      <Flame className="h-4 w-4 text-secondary" />
-                      Streak
+                  <div className="rounded-xl border-2 border-orange-500/30 bg-orange-500/10 p-3 sm:p-4 shadow-[0_4px_8px_rgba(0,0,0,0.15)]">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-foreground/80">
+                      <Flame className="h-4 w-4 text-orange-500" />
+                      🔥 Streak
                     </div>
-                    <p className="mt-2 text-2xl font-semibold text-foreground">{streak.current} days</p>
-                    <p className="text-[11px] text-foreground/50">Best streak {streak.best} days</p>
+                    <p className="mt-2 text-2xl font-bold text-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">{streak.current} days</p>
+                    <p className="text-[11px] font-semibold text-foreground/60">Best: {streak.best} days</p>
                   </div>
-                  <div className="rounded-2xl border border-border/50 bg-card/50 p-4">
-                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-foreground/60">
-                      <Trophy className="h-4 w-4 text-secondary" />
-                      Completed
+                  <div className="rounded-xl border-2 border-green-500/30 bg-green-500/10 p-4 shadow-[0_4px_8px_rgba(0,0,0,0.15)]">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-foreground/80">
+                      <Trophy className="h-4 w-4 text-green-500" />
+                      ✅ Completed
                     </div>
-                    <p className="mt-2 text-2xl font-semibold text-foreground">
+                    <p className="mt-2 text-2xl font-bold text-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
                       {myCompletedQuests.length}
                     </p>
-                    <p className="text-[11px] text-foreground/50">Quests finished</p>
+                    <p className="text-[11px] font-semibold text-foreground/60">Quests finished</p>
                   </div>
-                  <div className="rounded-2xl border border-border/50 bg-card/50 p-4">
-                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-foreground/60">
-                      <Map className="h-4 w-4 text-secondary" />
-                      Created
+                  <div className="rounded-xl border-2 border-blue-500/30 bg-blue-500/10 p-4 shadow-[0_4px_8px_rgba(0,0,0,0.15)]">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-foreground/80">
+                      <Map className="h-4 w-4 text-blue-500" />
+                      🚀 Created
                     </div>
-                    <p className="mt-2 text-2xl font-semibold text-foreground">
+                    <p className="mt-2 text-2xl font-bold text-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
                       {myCreatedQuests.length}
                     </p>
-                    <p className="text-[11px] text-foreground/50">Quests launched</p>
+                    <p className="text-[11px] font-semibold text-foreground/60">Quests launched</p>
                   </div>
-                  <div className="rounded-2xl border border-border/50 bg-card/50 p-4">
-                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-foreground/60">
-                      <Clock className="h-4 w-4 text-secondary" />
-                      In progress
+                  <div className="rounded-xl border-2 border-purple-500/30 bg-purple-500/10 p-4 shadow-[0_4px_8px_rgba(0,0,0,0.15)]">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-foreground/80">
+                      <Clock className="h-4 w-4 text-purple-500" />
+                      ⏳ Active
                     </div>
-                    <p className="mt-2 text-2xl font-semibold text-foreground">
+                    <p className="mt-2 text-2xl font-bold text-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
                       {myInProgressQuests.length}
                     </p>
-                    <p className="text-[11px] text-foreground/50">Active quests</p>
+                    <p className="text-[11px] font-semibold text-foreground/60">In progress</p>
                   </div>
                 </div>
               </CardContent>
