@@ -9,7 +9,6 @@ import {
   MapPin,
   Clock,
   ShieldCheck,
-  Trophy,
   Camera,
   Paperclip,
   Send,

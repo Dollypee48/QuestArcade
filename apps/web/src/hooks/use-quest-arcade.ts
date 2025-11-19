@@ -341,7 +341,7 @@ export function useQuestArcadeSync() {
             rawProofMetadata && !parsedProof ? rawProofMetadata : "On-chain quest";
           const questProof = mapQuestProof(quest.proofCID, parsedProof);
           const workerAddress = normalizeAddress(quest.worker);
-          let statusLabel = mapQuestStatusLabel(Number(quest.status));
+          const statusLabel = mapQuestStatusLabel(Number(quest.status));
 
           const difficulty: Quest["difficulty"] =
             baseReward >= 50 ? "Hard" : baseReward >= 25 ? "Medium" : "Easy";

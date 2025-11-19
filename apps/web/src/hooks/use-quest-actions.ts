@@ -85,6 +85,7 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
   const [claimState, setClaimState] = useState<MutationState & { questId?: string }>({ status: "idle" });
   const [updateState, setUpdateState] = useState<MutationState & { questId?: string }>({ status: "idle" });
   const [verifyState, setVerifyState] = useState<MutationState & { questId?: string }>({ status: "idle" });
+  const [cancelState, setCancelState] = useState<MutationState & { questId?: string }>({ status: "idle" });
 
   const questArcadeAddress = useMemo(
     () => toContractAddress(CONTRACT_ADDRESSES.questArcade),
