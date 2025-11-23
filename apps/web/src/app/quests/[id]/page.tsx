@@ -89,8 +89,13 @@ export default function QuestDetailsPage() {
   const isSubmitting = states.submit.status === "pending" && states.submit.questId === quest?.id;
   const isVerifying = states.verify?.status === "pending" && states.verify.questId === quest?.id;
   const isClaiming = states.claim?.status === "pending" && states.claim.questId === quest?.id;
+  const isCancelling = states.cancel?.status === "pending" && states.cancel.questId === quest?.id;
+  const acceptError = states.accept.status === "error" && states.accept.questId === quest?.id ? states.accept.error : null;
   const submitFeedback =
     states.submit.status === "error" && states.submit.questId === quest?.id ? states.submit.error : submitError;
+  const verifyError = states.verify?.status === "error" && states.verify.questId === quest?.id ? states.verify.error : null;
+  const claimError = states.claim?.status === "error" && states.claim.questId === quest?.id ? states.claim.error : null;
+  const cancelError = states.cancel?.status === "error" && states.cancel.questId === quest?.id ? states.cancel.error : null;
 
   const hasAcceptedQuest = useMemo(() => {
     if (!questProgress) {
@@ -453,33 +458,67 @@ export default function QuestDetailsPage() {
             </Button>
           )}
           {!isCreator && !isExpired && (
-            <Button
-              className="rounded-lg px-6 font-bold uppercase tracking-wide"
-              onClick={() => acceptQuest(quest!.id)}
-              disabled={isAccepting || hasAcceptedQuest}
-            >
-              {hasAcceptedQuest ? "✓ Accepted" : isAccepting ? "⚡ Accepting…" : "🎯 Accept Quest"}
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button
+                className="rounded-lg px-6 font-bold uppercase tracking-wide"
+                onClick={async () => {
+                  try {
+                    await acceptQuest(quest!.id);
+                  } catch (error) {
+                    // Error is already handled by the hook and displayed via toast
+                    console.error("Failed to accept quest:", error);
+                  }
+                }}
+                disabled={isAccepting || hasAcceptedQuest}
+              >
+                {hasAcceptedQuest ? "✓ Accepted" : isAccepting ? "⚡ Accepting…" : "🎯 Accept Quest"}
+              </Button>
+              {acceptError && (
+                <p className="text-xs text-destructive font-semibold">{acceptError}</p>
+              )}
+            </div>
           )}
           {canRefund && (
-            <Button
-              variant="secondary"
-              className="rounded-lg border-2 font-bold uppercase tracking-wide px-6"
-              onClick={() => cancelQuest(quest!.id)}
-              disabled={states.cancel.status === "pending"}
-            >
-              {states.cancel.status === "pending" ? "Cancelling…" : "Cancel & Refund"}
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="secondary"
+                className="rounded-lg border-2 font-bold uppercase tracking-wide px-6"
+                onClick={async () => {
+                  try {
+                    await cancelQuest(quest!.id);
+                  } catch (error) {
+                    console.error("Failed to cancel quest:", error);
+                  }
+                }}
+                disabled={isCancelling}
+              >
+                {isCancelling ? "Cancelling…" : "Cancel & Refund"}
+              </Button>
+              {cancelError && (
+                <p className="text-xs text-destructive font-semibold">{cancelError}</p>
+              )}
+            </div>
           )}
           {canClaimReward && (
-            <Button
-              variant="secondary"
-              className="rounded-lg border-2 font-bold uppercase tracking-wide px-6"
-              onClick={() => claimReward(quest!.id)}
-              disabled={isClaiming}
-            >
-              {isClaiming ? "⚡ Claiming…" : "💰 Claim Reward"}
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="secondary"
+                className="rounded-lg border-2 font-bold uppercase tracking-wide px-6"
+                onClick={async () => {
+                  try {
+                    await claimReward(quest!.id);
+                  } catch (error) {
+                    console.error("Failed to claim reward:", error);
+                  }
+                }}
+                disabled={isClaiming}
+              >
+                {isClaiming ? "⚡ Claiming…" : "💰 Claim Reward"}
+              </Button>
+              {claimError && (
+                <p className="text-xs text-destructive font-semibold">{claimError}</p>
+              )}
+            </div>
           )}
           <Dialog open={isProofModalOpen} onOpenChange={setIsProofModalOpen}>
             <DialogTrigger asChild>
@@ -977,21 +1016,40 @@ export default function QuestDetailsPage() {
             </div>
             {canReviewSubmission && (
               <div className="mt-6 flex flex-col gap-3 border-t-2 border-foreground/20 pt-4 md:flex-row md:items-center md:justify-end">
-                <Button
-                  variant="outline"
-                  className="rounded-lg border-2 border-red-500/50 bg-red-500/10 px-6 font-bold uppercase tracking-wide text-red-500 hover:bg-red-500/20"
-                  onClick={() => verifyQuest({ questId: quest!.id, approve: false })}
-                  disabled={isVerifying}
-                >
-                  {isVerifying ? "⚡ Processing…" : "❌ Reject Proof"}
-                </Button>
-                <Button
-                  className="rounded-lg px-6 font-bold uppercase tracking-wide"
-                  onClick={() => verifyQuest({ questId: quest!.id, approve: true })}
-                  disabled={isVerifying}
-                >
-                  {isVerifying ? "⚡ Processing…" : "✅ Approve & Release Reward"}
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 md:flex-row">
+                    <Button
+                      variant="outline"
+                      className="rounded-lg border-2 border-red-500/50 bg-red-500/10 px-6 font-bold uppercase tracking-wide text-red-500 hover:bg-red-500/20"
+                      onClick={async () => {
+                        try {
+                          await verifyQuest({ questId: quest!.id, approve: false });
+                        } catch (error) {
+                          console.error("Failed to reject proof:", error);
+                        }
+                      }}
+                      disabled={isVerifying}
+                    >
+                      {isVerifying ? "⚡ Processing…" : "❌ Reject Proof"}
+                    </Button>
+                    <Button
+                      className="rounded-lg px-6 font-bold uppercase tracking-wide"
+                      onClick={async () => {
+                        try {
+                          await verifyQuest({ questId: quest!.id, approve: true });
+                        } catch (error) {
+                          console.error("Failed to approve proof:", error);
+                        }
+                      }}
+                      disabled={isVerifying}
+                    >
+                      {isVerifying ? "⚡ Processing…" : "✅ Approve & Release Reward"}
+                    </Button>
+                  </div>
+                  {verifyError && (
+                    <p className="text-xs text-destructive font-semibold">{verifyError}</p>
+                  )}
+                </div>
               </div>
             )}
           </div>

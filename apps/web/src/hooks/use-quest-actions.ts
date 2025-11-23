@@ -64,11 +64,91 @@ const parseQuestId = (questId: string): bigint => {
   }
 };
 
-const formatError = (error: unknown) => {
+const formatError = (error: unknown): string => {
   if (error instanceof Error) {
-    return error.message;
+    // If the error already has a user-friendly message, return it
+    if (error.message && !error.message.includes("0x") && !error.message.includes("revert")) {
+      return error.message;
+    }
+    
+    // Extract meaningful error messages from common error formats
+    const errorString = error.message || String(error);
+    
+    // Check for contract-specific errors
+    if (errorString.includes("QuestArcade__InvalidQuest") || errorString.includes("InvalidQuest")) {
+      return "The quest does not exist or is invalid. Please check the quest ID.";
+    }
+    if (errorString.includes("QuestArcade__InvalidStatusTransition") || errorString.includes("InvalidStatusTransition")) {
+      return "This action is not allowed in the quest's current state. The quest may have already progressed or been cancelled.";
+    }
+    if (errorString.includes("QuestArcade__Unauthorized") || errorString.includes("Unauthorized")) {
+      return "You are not authorized to perform this action. Please check that you are the correct user.";
+    }
+    if (errorString.includes("QuestArcade__DeadlineElapsed") || errorString.includes("DeadlineElapsed")) {
+      return "The quest deadline has passed. This action is no longer available.";
+    }
+    if (errorString.includes("QuestArcade__QuestAlreadyAccepted") || errorString.includes("QuestAlreadyAccepted")) {
+      return "This quest has already been accepted by another user.";
+    }
+    if (errorString.includes("QuestArcade__RewardAlreadyClaimed") || errorString.includes("RewardAlreadyClaimed")) {
+      return "The reward for this quest has already been claimed.";
+    }
+    if (errorString.includes("QuestArcade__FundsNotEscrowed") || errorString.includes("FundsNotEscrowed")) {
+      return "The quest funds have not been escrowed. The creator may need to fund the quest first.";
+    }
+    if (errorString.includes("QuestArcade__CreatorOnly") || errorString.includes("CreatorOnly")) {
+      return "Only the quest creator can perform this action.";
+    }
+    if (errorString.includes("QuestArcade__WorkerOnly") || errorString.includes("WorkerOnly")) {
+      return "Only the quest worker (the person who accepted the quest) can perform this action.";
+    }
+    if (errorString.includes("QuestArcade__InvalidVerificationType") || errorString.includes("InvalidVerificationType")) {
+      return "Invalid verification type selected. Please choose a valid proof type.";
+    }
+    
+    // Check for wallet/network errors
+    if (errorString.includes("User rejected") || errorString.includes("user rejected") || errorString.includes("rejected the request")) {
+      return "Transaction was cancelled. Please try again when ready.";
+    }
+    if (errorString.includes("insufficient funds") || errorString.includes("insufficient balance")) {
+      return "Insufficient funds. Please ensure you have enough tokens to complete this transaction.";
+    }
+    if (errorString.includes("network") || errorString.includes("Network")) {
+      return "Network error. Please check your connection and try again.";
+    }
+    if (errorString.includes("timeout") || errorString.includes("Timeout")) {
+      return "Request timed out. Please check your network connection and try again.";
+    }
+    
+    // Check for revert errors
+    if (errorString.includes("revert") || errorString.includes("execution reverted")) {
+      // Try to extract the revert reason
+      const revertMatch = errorString.match(/revert (.+)/i) || errorString.match(/execution reverted: (.+)/i);
+      if (revertMatch && revertMatch[1] && !revertMatch[1].includes("0x")) {
+        return `Transaction failed: ${revertMatch[1]}`;
+      }
+      return "Transaction was reverted. Please check the quest status and try again.";
+    }
+    
+    // Return the error message if it's meaningful
+    if (error.message && error.message.length < 200) {
+      return error.message;
+    }
   }
-  return "Something went wrong. Please try again.";
+  
+  // For non-Error objects, try to extract a meaningful message
+  if (typeof error === "string") {
+    return error;
+  }
+  
+  if (error && typeof error === "object") {
+    const errorObj = error as { message?: string; shortMessage?: string; details?: string };
+    if (errorObj.message) return errorObj.message;
+    if (errorObj.shortMessage) return errorObj.shortMessage;
+    if (errorObj.details) return errorObj.details;
+  }
+  
+  return "Something went wrong. Please try again. If the problem persists, check the console for details.";
 };
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
@@ -624,13 +704,100 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
   const acceptQuest = useCallback(
     async (questId: string) => {
       try {
+        console.log("Quest acceptance: Starting...");
         ensureWalletReady();
         const id = parseQuestId(questId);
         if (id === 0n) {
-          throw new Error("Invalid quest identifier.");
+          throw new Error("Invalid quest identifier. Please check the quest ID and try again.");
         }
+        
+        // Check quest state before attempting to accept
+        try {
+          const questDetails = await publicClient!.readContract({
+            address: questArcadeAddress!,
+            abi: QUEST_ARCADE_ABI,
+            functionName: "getQuestDetails",
+            args: [id],
+          }) as { status: number; creator: `0x${string}`; worker: `0x${string}`; deadline: bigint };
+          
+          console.log("Quest acceptance: Quest details:", {
+            status: questDetails.status,
+            creator: questDetails.creator,
+            worker: questDetails.worker,
+            deadline: questDetails.deadline.toString(),
+            currentTime: BigInt(Math.floor(Date.now() / 1000)).toString(),
+            isExpired: questDetails.deadline <= BigInt(Math.floor(Date.now() / 1000)),
+            isCreator: questDetails.creator.toLowerCase() === address!.toLowerCase(),
+            alreadyAccepted: questDetails.worker !== "0x0000000000000000000000000000000000000000",
+          });
+          
+          // Pre-check common issues
+          if (questDetails.creator.toLowerCase() === address!.toLowerCase()) {
+            throw new Error("You cannot accept your own quest. Only other users can accept quests you create.");
+          }
+          
+          if (questDetails.worker !== "0x0000000000000000000000000000000000000000") {
+            throw new Error("This quest has already been accepted by another user. Please find another quest.");
+          }
+          
+          const currentTime = BigInt(Math.floor(Date.now() / 1000));
+          if (questDetails.deadline <= currentTime) {
+            throw new Error("This quest has expired. The deadline has passed and it can no longer be accepted.");
+          }
+          
+          // Status 0 = Open, 1 = Accepted, 2 = Submitted, 3 = Verified, 4 = Rejected, 5 = Cancelled
+          if (questDetails.status !== 0) {
+            const statusNames = ["Open", "Accepted", "Submitted", "Verified", "Rejected", "Cancelled"];
+            throw new Error(`This quest is not available for acceptance. Current status: ${statusNames[questDetails.status] || "Unknown"}.`);
+          }
+        } catch (preCheckError) {
+          if (preCheckError instanceof Error && !preCheckError.message.includes("Invalid quest")) {
+            console.error("Quest acceptance: Pre-check failed:", preCheckError);
+            throw preCheckError;
+          }
+          // If it's a read error, continue to simulation which will catch it
+          console.warn("Quest acceptance: Could not read quest details, will rely on simulation:", preCheckError);
+        }
+        
         setAcceptState({ status: "pending", questId });
 
+        // Simulate the transaction first to catch errors before sending
+        console.log("Quest acceptance: Simulating transaction...");
+        try {
+          await publicClient!.simulateContract({
+            account: address,
+            address: questArcadeAddress!,
+            abi: QUEST_ARCADE_ABI,
+            functionName: "acceptQuest",
+            args: [id],
+          });
+          console.log("Quest acceptance: Simulation successful, sending transaction...");
+        } catch (simError: unknown) {
+          console.error("Quest acceptance: Simulation failed:", simError);
+          const sim = simError as { shortMessage?: string; message?: string; details?: string };
+          const errorMessage = sim?.shortMessage || sim?.message || sim?.details || JSON.stringify(simError);
+          
+          // Map contract errors to user-friendly messages
+          if (errorMessage.includes("QuestArcade__InvalidQuest") || errorMessage.includes("InvalidQuest")) {
+            throw new Error("This quest does not exist. It may have been deleted or the quest ID is incorrect.");
+          }
+          if (errorMessage.includes("QuestArcade__InvalidStatusTransition") || errorMessage.includes("InvalidStatusTransition")) {
+            throw new Error("This quest is not in the correct state to be accepted. It may have already been accepted, submitted, or completed.");
+          }
+          if (errorMessage.includes("QuestArcade__Unauthorized") || errorMessage.includes("Unauthorized")) {
+            throw new Error("You cannot accept your own quest. Only other users can accept quests you create.");
+          }
+          if (errorMessage.includes("QuestArcade__DeadlineElapsed") || errorMessage.includes("DeadlineElapsed") || errorMessage.includes("deadline")) {
+            throw new Error("This quest has expired. The deadline has passed and it can no longer be accepted.");
+          }
+          if (errorMessage.includes("QuestArcade__QuestAlreadyAccepted") || errorMessage.includes("QuestAlreadyAccepted") || errorMessage.includes("already accepted")) {
+            throw new Error("This quest has already been accepted by another user. Please find another quest.");
+          }
+          
+          throw new Error(`Cannot accept quest: ${errorMessage}. Please check the quest status and try again.`);
+        }
+
+        console.log("Quest acceptance: Sending transaction...");
         const hash = await writeContractAsync({
           account: address,
           address: questArcadeAddress!,
@@ -638,15 +805,23 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
           functionName: "acceptQuest",
           args: [id],
         });
+        console.log("Quest acceptance: Transaction hash:", hash);
 
-        await publicClient!.waitForTransactionReceipt({ hash });
+        const receipt = await publicClient!.waitForTransactionReceipt({ hash });
+        console.log("Quest acceptance: Transaction confirmed in block:", receipt.blockNumber);
+        
+        if (receipt.status === "reverted") {
+          throw new Error("Transaction was reverted. The quest may have been accepted by someone else or the status changed.");
+        }
 
         setAcceptState({ status: "success", questId });
-        toast.success("Quest accepted and synced.");
+        toast.success("Quest accepted successfully! You can now submit proof when ready.");
         await handleSettled();
       } catch (error) {
-        setAcceptState({ status: "error", questId, error: formatError(error) });
-        toast.error(formatError(error));
+        console.error("Quest acceptance: Error occurred:", error);
+        const errorMessage = formatError(error);
+        setAcceptState({ status: "error", questId, error: errorMessage });
+        toast.error(errorMessage);
         throw error;
       }
     },
@@ -656,32 +831,74 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
   const submitProof = useCallback(
     async ({ questId, proofCid, metadataCid }: SubmitProofArgs) => {
       try {
+        console.log("Proof submission: Starting...");
         ensureWalletReady();
         if (!proofCid.trim()) {
-          throw new Error("Proof reference is required.");
+          throw new Error("Proof reference is required. Please upload a file or provide a CID.");
         }
         const id = parseQuestId(questId);
         if (id === 0n) {
-          throw new Error("Invalid quest identifier.");
+          throw new Error("Invalid quest identifier. Please check the quest ID and try again.");
         }
         setSubmitState({ status: "pending", questId });
 
+        // Simulate the transaction first
+        console.log("Proof submission: Simulating transaction...");
+        try {
+          await publicClient!.simulateContract({
+            account: address,
+            address: questArcadeAddress!,
+            abi: QUEST_ARCADE_ABI,
+            functionName: "submitProof",
+            args: [id, proofCid.trim(), metadataCid],
+          });
+          console.log("Proof submission: Simulation successful, sending transaction...");
+        } catch (simError: unknown) {
+          console.error("Proof submission: Simulation failed:", simError);
+          const sim = simError as { shortMessage?: string; message?: string; details?: string };
+          const errorMessage = sim?.shortMessage || sim?.message || sim?.details || JSON.stringify(simError);
+          
+          if (errorMessage.includes("QuestArcade__InvalidQuest") || errorMessage.includes("InvalidQuest")) {
+            throw new Error("This quest does not exist or the proof CID is invalid. Please check your proof and try again.");
+          }
+          if (errorMessage.includes("QuestArcade__InvalidStatusTransition") || errorMessage.includes("InvalidStatusTransition")) {
+            throw new Error("You can only submit proof for quests you have accepted. Please accept the quest first.");
+          }
+          if (errorMessage.includes("QuestArcade__DeadlineElapsed") || errorMessage.includes("DeadlineElapsed")) {
+            throw new Error("The quest deadline has passed. You can no longer submit proof for this quest.");
+          }
+          if (errorMessage.includes("QuestArcade__WorkerOnly") || errorMessage.includes("WorkerOnly")) {
+            throw new Error("Only the user who accepted this quest can submit proof. Please accept the quest first.");
+          }
+          
+          throw new Error(`Cannot submit proof: ${errorMessage}. Please check the quest status and try again.`);
+        }
+
+        console.log("Proof submission: Sending transaction...");
         const hash = await writeContractAsync({
           account: address,
           address: questArcadeAddress!,
           abi: QUEST_ARCADE_ABI,
           functionName: "submitProof",
-          args: [id, proofCid, metadataCid],
+          args: [id, proofCid.trim(), metadataCid],
         });
+        console.log("Proof submission: Transaction hash:", hash);
 
-        await publicClient!.waitForTransactionReceipt({ hash });
+        const receipt = await publicClient!.waitForTransactionReceipt({ hash });
+        console.log("Proof submission: Transaction confirmed in block:", receipt.blockNumber);
+        
+        if (receipt.status === "reverted") {
+          throw new Error("Transaction was reverted. Please check that you have accepted the quest and the deadline hasn't passed.");
+        }
 
         setSubmitState({ status: "success", questId });
-        toast.success("Proof submitted. Await verification.");
+        toast.success("Proof submitted successfully! The quest creator will review it shortly.");
         await handleSettled();
       } catch (error) {
-        setSubmitState({ status: "error", questId, error: formatError(error) });
-        toast.error(formatError(error));
+        console.error("Proof submission: Error occurred:", error);
+        const errorMessage = formatError(error);
+        setSubmitState({ status: "error", questId, error: errorMessage });
+        toast.error(errorMessage);
         throw error;
       }
     },
@@ -691,13 +908,44 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
   const verifyQuest = useCallback(
     async ({ questId, approve }: { questId: string; approve: boolean }) => {
       try {
+        console.log("Quest verification: Starting...", { questId, approve });
         ensureWalletReady();
         const id = parseQuestId(questId);
         if (id === 0n) {
-          throw new Error("Invalid quest identifier.");
+          throw new Error("Invalid quest identifier. Please check the quest ID and try again.");
         }
         setVerifyState({ status: "pending", questId });
 
+        // Simulate the transaction first
+        console.log("Quest verification: Simulating transaction...");
+        try {
+          await publicClient!.simulateContract({
+            account: address,
+            address: questArcadeAddress!,
+            abi: QUEST_ARCADE_ABI,
+            functionName: "verifyQuest",
+            args: [id, approve],
+          });
+          console.log("Quest verification: Simulation successful, sending transaction...");
+        } catch (simError: unknown) {
+          console.error("Quest verification: Simulation failed:", simError);
+          const sim = simError as { shortMessage?: string; message?: string; details?: string };
+          const errorMessage = sim?.shortMessage || sim?.message || sim?.details || JSON.stringify(simError);
+          
+          if (errorMessage.includes("QuestArcade__InvalidQuest") || errorMessage.includes("InvalidQuest")) {
+            throw new Error("This quest does not exist. Please check the quest ID.");
+          }
+          if (errorMessage.includes("QuestArcade__InvalidStatusTransition") || errorMessage.includes("InvalidStatusTransition")) {
+            throw new Error("You can only verify quests that have been submitted. The quest must be in 'Submitted' status.");
+          }
+          if (errorMessage.includes("QuestArcade__Unauthorized") || errorMessage.includes("Unauthorized")) {
+            throw new Error("Only the quest creator can verify this quest. You are not authorized to perform this action.");
+          }
+          
+          throw new Error(`Cannot verify quest: ${errorMessage}. Please check the quest status and try again.`);
+        }
+
+        console.log("Quest verification: Sending transaction...");
         const hash = await writeContractAsync({
           account: address,
           address: questArcadeAddress!,
@@ -705,15 +953,23 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
           functionName: "verifyQuest",
           args: [id, approve],
         });
+        console.log("Quest verification: Transaction hash:", hash);
 
-        await publicClient!.waitForTransactionReceipt({ hash });
+        const receipt = await publicClient!.waitForTransactionReceipt({ hash });
+        console.log("Quest verification: Transaction confirmed in block:", receipt.blockNumber);
+        
+        if (receipt.status === "reverted") {
+          throw new Error("Transaction was reverted. Please check that the quest is in the correct status for verification.");
+        }
 
         setVerifyState({ status: "success", questId });
-        toast.success(approve ? "Quest approved. Reward ready to claim." : "Quest rejected and funds returned.");
+        toast.success(approve ? "Quest approved successfully! The worker can now claim their reward." : "Quest rejected. Funds have been returned to you.");
         await handleSettled();
       } catch (error) {
-        setVerifyState({ status: "error", questId, error: formatError(error) });
-        toast.error(formatError(error));
+        console.error("Quest verification: Error occurred:", error);
+        const errorMessage = formatError(error);
+        setVerifyState({ status: "error", questId, error: errorMessage });
+        toast.error(errorMessage);
         throw error;
       }
     },
@@ -723,10 +979,11 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
   const claimReward = useCallback(
     async (questId: string) => {
       try {
+        console.log("Reward claim: Starting...");
         ensureWalletReady();
         const id = parseQuestId(questId);
         if (id === 0n) {
-          throw new Error("Invalid quest identifier.");
+          throw new Error("Invalid quest identifier. Please check the quest ID and try again.");
         }
         setClaimState({ status: "pending", questId });
 
@@ -734,6 +991,39 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
         const quest = quests.find((q) => q.id === questId);
         const questXp = quest?.xp ?? 0;
 
+        // Simulate the transaction first
+        console.log("Reward claim: Simulating transaction...");
+        try {
+          await publicClient!.simulateContract({
+            account: address,
+            address: questArcadeAddress!,
+            abi: QUEST_ARCADE_ABI,
+            functionName: "claimReward",
+            args: [id],
+          });
+          console.log("Reward claim: Simulation successful, sending transaction...");
+        } catch (simError: unknown) {
+          console.error("Reward claim: Simulation failed:", simError);
+          const sim = simError as { shortMessage?: string; message?: string; details?: string };
+          const errorMessage = sim?.shortMessage || sim?.message || sim?.details || JSON.stringify(simError);
+          
+          if (errorMessage.includes("QuestArcade__InvalidQuest") || errorMessage.includes("InvalidQuest")) {
+            throw new Error("This quest does not exist. Please check the quest ID.");
+          }
+          if (errorMessage.includes("QuestArcade__InvalidStatusTransition") || errorMessage.includes("InvalidStatusTransition")) {
+            throw new Error("The quest must be verified before you can claim the reward. Please wait for the creator to verify your submission.");
+          }
+          if (errorMessage.includes("QuestArcade__RewardAlreadyClaimed") || errorMessage.includes("RewardAlreadyClaimed")) {
+            throw new Error("The reward for this quest has already been claimed.");
+          }
+          if (errorMessage.includes("QuestArcade__WorkerOnly") || errorMessage.includes("WorkerOnly")) {
+            throw new Error("Only the user who completed this quest can claim the reward.");
+          }
+          
+          throw new Error(`Cannot claim reward: ${errorMessage}. Please check the quest status and try again.`);
+        }
+
+        console.log("Reward claim: Sending transaction...");
         const hash = await writeContractAsync({
           account: address,
           address: questArcadeAddress!,
@@ -741,8 +1031,14 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
           functionName: "claimReward",
           args: [id],
         });
+        console.log("Reward claim: Transaction hash:", hash);
 
-        await publicClient!.waitForTransactionReceipt({ hash });
+        const receipt = await publicClient!.waitForTransactionReceipt({ hash });
+        console.log("Reward claim: Transaction confirmed in block:", receipt.blockNumber);
+        
+        if (receipt.status === "reverted") {
+          throw new Error("Transaction was reverted. Please check that the quest has been verified and the reward hasn't been claimed yet.");
+        }
 
         // Add XP when reward is successfully claimed
         if (questXp > 0) {
@@ -750,11 +1046,13 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
         }
 
         setClaimState({ status: "success", questId });
-        toast.success(`Reward claimed successfully. ${questXp > 0 ? `+${questXp} XP earned!` : ""}`);
+        toast.success(`Reward claimed successfully! ${questXp > 0 ? `+${questXp} XP earned!` : ""}`);
         await handleSettled();
       } catch (error) {
-        setClaimState({ status: "error", questId, error: formatError(error) });
-        toast.error(formatError(error));
+        console.error("Reward claim: Error occurred:", error);
+        const errorMessage = formatError(error);
+        setClaimState({ status: "error", questId, error: errorMessage });
+        toast.error(errorMessage);
         throw error;
       }
     },
@@ -831,13 +1129,47 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
   const cancelQuest = useCallback(
     async (questId: string) => {
       try {
+        console.log("Quest cancellation: Starting...");
         ensureWalletReady();
         const id = parseQuestId(questId);
         if (id === 0n) {
-          throw new Error("Invalid quest identifier.");
+          throw new Error("Invalid quest identifier. Please check the quest ID and try again.");
         }
         setCancelState({ status: "pending", questId });
 
+        // Simulate the transaction first
+        console.log("Quest cancellation: Simulating transaction...");
+        try {
+          await publicClient!.simulateContract({
+            account: address,
+            address: questArcadeAddress!,
+            abi: QUEST_ARCADE_ABI,
+            functionName: "cancelQuest",
+            args: [id],
+          });
+          console.log("Quest cancellation: Simulation successful, sending transaction...");
+        } catch (simError: unknown) {
+          console.error("Quest cancellation: Simulation failed:", simError);
+          const sim = simError as { shortMessage?: string; message?: string; details?: string };
+          const errorMessage = sim?.shortMessage || sim?.message || sim?.details || JSON.stringify(simError);
+          
+          if (errorMessage.includes("QuestArcade__InvalidQuest") || errorMessage.includes("InvalidQuest")) {
+            throw new Error("This quest does not exist. Please check the quest ID.");
+          }
+          if (errorMessage.includes("QuestArcade__InvalidStatusTransition") || errorMessage.includes("InvalidStatusTransition")) {
+            throw new Error("This quest cannot be cancelled. It may have already been accepted, submitted, or completed.");
+          }
+          if (errorMessage.includes("QuestArcade__CreatorOnly") || errorMessage.includes("CreatorOnly")) {
+            throw new Error("Only the quest creator can cancel this quest.");
+          }
+          if (errorMessage.includes("QuestArcade__FundsNotEscrowed") || errorMessage.includes("FundsNotEscrowed")) {
+            throw new Error("The quest funds have not been escrowed. There is nothing to refund.");
+          }
+          
+          throw new Error(`Cannot cancel quest: ${errorMessage}. Please check the quest status and try again.`);
+        }
+
+        console.log("Quest cancellation: Sending transaction...");
         const hash = await writeContractAsync({
           account: address,
           address: questArcadeAddress!,
@@ -845,12 +1177,20 @@ export function useQuestActions(options?: UseQuestActionsOptions) {
           functionName: "cancelQuest",
           args: [id],
         });
+        console.log("Quest cancellation: Transaction hash:", hash);
 
-        await publicClient!.waitForTransactionReceipt({ hash });
+        const receipt = await publicClient!.waitForTransactionReceipt({ hash });
+        console.log("Quest cancellation: Transaction confirmed in block:", receipt.blockNumber);
+        
+        if (receipt.status === "reverted") {
+          throw new Error("Transaction was reverted. Please check that you are the quest creator and the quest can be cancelled.");
+        }
+        
         setCancelState({ status: "success", questId });
-        toast.success("Quest cancelled and refund processed.");
+        toast.success("Quest cancelled successfully. Your funds have been refunded.");
         await handleSettled();
       } catch (error) {
+        console.error("Quest cancellation: Error occurred:", error);
         const errorMessage = formatError(error);
         setCancelState({ status: "error", questId, error: errorMessage });
         toast.error(errorMessage);
