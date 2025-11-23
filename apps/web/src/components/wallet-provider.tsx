@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react";
 import { WagmiProvider, createConfig, http, fallback, useConnect, useAccount } from "wagmi";
 import { celo, celoAlfajores, celoSepolia } from "wagmi/chains";
 import { useGameStore } from "@/store/use-game-store";
+import { useQuestArcadeSync } from "@/hooks/use-quest-arcade";
 
 const connectors = connectorsForWallets(
   [
@@ -66,6 +67,7 @@ function WalletProviderInner({ children }: { children: React.ReactNode }) {
   const { address, isConnected } = useAccount();
   const resetState = useGameStore((state) => state.resetState);
   const previousAddressRef = useRef<string | undefined>(undefined);
+  const { refresh } = useQuestArcadeSync();
 
   useEffect(() => {
     // Check if the app is running inside MiniPay
@@ -93,6 +95,7 @@ function WalletProviderInner({ children }: { children: React.ReactNode }) {
   }, [connect, connectors]);
 
   // Reset local game state when wallet disconnects or when the connected address changes
+  // Also sync balance when wallet connects
   useEffect(() => {
     // Wallet disconnected or no address - always clear local state
     if (!isConnected || !address) {
@@ -103,18 +106,25 @@ function WalletProviderInner({ children }: { children: React.ReactNode }) {
 
     const previousAddress = previousAddressRef.current;
 
-    // First connect
-    if (!previousAddress) {
+    // First connect or address changed - sync from chain
+    if (!previousAddress || previousAddress.toLowerCase() !== address.toLowerCase()) {
+      if (previousAddress && previousAddress.toLowerCase() !== address.toLowerCase()) {
+        // Address changed - clear previous user's state
+        resetState();
+      }
       previousAddressRef.current = address;
-      return;
+      
+      // Sync balance and quest data from chain after connecting
+      // Use a small delay to ensure wallet is fully connected
+      const syncTimer = setTimeout(() => {
+        refresh().catch((error) => {
+          console.warn("Failed to sync after wallet connection:", error);
+        });
+      }, 1000);
+      
+      return () => clearTimeout(syncTimer);
     }
-
-    // Address changed - clear previous user's state
-    if (previousAddress.toLowerCase() !== address.toLowerCase()) {
-      resetState();
-      previousAddressRef.current = address;
-    }
-  }, [address, isConnected, resetState]);
+  }, [address, isConnected, resetState, refresh]);
 
   return <>{children}</>;
 }

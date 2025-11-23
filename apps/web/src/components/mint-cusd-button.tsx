@@ -7,7 +7,7 @@ import { erc20Abi } from "viem";
 import { Button } from "@/components/ui/button";
 import { CHAIN_CONFIG } from "@/config/contractConfig";
 import { Coins, Clock } from "lucide-react";
-import { useGameStore } from "@/store/use-game-store";
+import { useQuestArcadeSync } from "@/hooks/use-quest-arcade";
 
 const MINT_AMOUNT = parseUnits("100", 18); // 100 cUSD
 const MINT_COOLDOWN_HOURS = 5; // 5 hours
@@ -34,7 +34,7 @@ export function MintCUSDButton() {
   const { address, isConnected } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const publicClient = usePublicClient({ chainId: CHAIN_CONFIG.defaultChainId });
-  const { setBalance, balance } = useGameStore();
+  const { refresh } = useQuestArcadeSync();
   const [isMinting, setIsMinting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -149,9 +149,15 @@ export function MintCUSDButton() {
       // Store the mint time
       localStorage.setItem(`${STORAGE_KEY}-${address}`, Date.now().toString());
       
-      // Update balance in store
-      const newBalance = balance + 100;
-      setBalance(newBalance);
+      // Wait a moment for the transaction to be fully processed
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Refresh balance from chain instead of manually updating
+      try {
+        await refresh();
+      } catch (refreshError) {
+        console.warn("Failed to refresh balance after minting:", refreshError);
+      }
       
       setSuccess(true);
       setTimeout(() => setSuccess(false), 5000);

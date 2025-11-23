@@ -7,6 +7,7 @@ import { erc20Abi } from "viem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CHAIN_CONFIG } from "@/config/contractConfig";
+import { useQuestArcadeSync } from "@/hooks/use-quest-arcade";
 
 const MINT_AMOUNT = parseUnits("1000", 18); // 1000 tokens
 
@@ -29,6 +30,7 @@ export function MintTestToken() {
   const { address, isConnected } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const publicClient = usePublicClient({ chainId: CHAIN_CONFIG.defaultChainId });
+  const { refresh } = useQuestArcadeSync();
   const [isMinting, setIsMinting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -105,6 +107,16 @@ export function MintTestToken() {
 
       await publicClient!.waitForTransactionReceipt({ hash });
       
+      // Wait a moment for the transaction to be fully processed
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Refresh balance from chain
+      try {
+        await refresh();
+      } catch (refreshError) {
+        console.warn("Failed to refresh balance after minting:", refreshError);
+      }
+      
       setSuccess(true);
       setTimeout(() => setSuccess(false), 5000);
     } catch (err: unknown) {
@@ -146,7 +158,7 @@ export function MintTestToken() {
         
         {success && (
           <p className="text-sm text-green-400">
-            Successfully minted 1000 test tokens! Refresh to see your balance.
+            Successfully minted 1000 test tokens! Your balance has been updated.
           </p>
         )}
 
