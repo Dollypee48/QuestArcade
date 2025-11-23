@@ -2,7 +2,7 @@
 
 import { RainbowKitProvider, connectorsForWallets } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
-import { injectedWallet } from "@rainbow-me/rainbowkit/wallets";
+import { metaMaskWallet, injectedWallet } from "@rainbow-me/rainbowkit/wallets";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { WagmiProvider, createConfig, http, fallback, useConnect, useAccount } from "wagmi";
@@ -10,16 +10,23 @@ import { celo, celoAlfajores, celoSepolia } from "wagmi/chains";
 import { useGameStore } from "@/store/use-game-store";
 import { useQuestArcadeSync } from "@/hooks/use-quest-arcade";
 
+// Get WalletConnect project ID or use a default one (required for RainbowKit)
+// You can get a free project ID from https://cloud.walletconnect.com
+const projectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID || "21fef48091f12692cad42a4b4b54b2b8"; // Default project ID for testing
+
 const connectors = connectorsForWallets(
   [
     {
       groupName: "Recommended",
-      wallets: [injectedWallet],
+      wallets: [
+        metaMaskWallet,
+        injectedWallet,
+      ],
     },
   ],
   {
-    appName: "questArcade",
-    projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID!,
+    appName: "QuestArcade",
+    projectId,
   }
 );
 
