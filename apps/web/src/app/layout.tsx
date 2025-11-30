@@ -1,12 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
+import dynamic from "next/dynamic";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { QuestArcadeSyncProvider } from "@/components/providers/quest-arcade-sync";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ToastProvider } from "@/components/providers/toast-provider";
-import { WalletProvider } from "@/components/wallet-provider";
+
+// Dynamically import WalletProvider to avoid SSR issues with indexedDB
+const WalletProvider = dynamic(
+  () => import("@/components/wallet-provider").then((mod) => ({ default: mod.WalletProvider })),
+  { ssr: false }
+);
 
 export const metadata: Metadata = {
   title: "questArcade",
@@ -16,18 +22,19 @@ export const metadata: Metadata = {
     apple: "/icon.svg",
   },
   manifest: "/manifest.json",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
-  themeColor: "#7C3AED",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "QuestArcade",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#7C3AED",
 };
 
 export default function RootLayout({

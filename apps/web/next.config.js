@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Allow ngrok domains for development
+  allowedDevOrigins: [
+    'consultative-brandie-nonprohibitorily.ngrok-free.dev',
+    '*.ngrok-free.app',
+    '*.ngrok-free.dev',
+    '*.ngrok.io',
+  ],
   // Headers for MiniPay Mini App compatibility
   async headers() {
     return [

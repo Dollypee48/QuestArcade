@@ -42,6 +42,7 @@ const createHttpTransport = (rpcUrl: string) => {
   });
 };
 
+// Create wagmi config - WalletConnect will handle SSR gracefully
 const wagmiConfig = createConfig({
   chains: [celoSepolia, celo, celoAlfajores],
   connectors,
