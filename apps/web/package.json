@@ -5,6 +5,9 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
+    "dev:tunnel": "concurrently \"npm run dev\" \"npx ngrok http 3000 --authtoken=36DGaCXsMl7RJ9vzU7Dwv7ni6lz_mBpSkvjpJjVpQzndMrr\"",
+    "tunnel": "npx ngrok http 3000 --authtoken=36DGaCXsMl7RJ9vzU7Dwv7ni6lz_mBpSkvjpJjVpQzndMrr",
+    "tunnel:config": "npx ngrok start questarcade --config=ngrok.yml",
     "lint": "next lint",
     "start": "next start",
     "type-check": "tsc --noEmit"
@@ -33,6 +36,7 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "autoprefixer": "^10.4.17",
+    "concurrently": "^8.2.2",
     "eslint": "^8.50.0",
     "eslint-config-next": "^14.0.0",
     "postcss": "^8.4.35",

@@ -1,0 +1,39 @@
+{
+  "name": "QuestArcade",
+  "short_name": "QuestArcade",
+  "description": "A gamified quest platform built on Celo MiniPay",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B041A",
+  "theme_color": "#7C3AED",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "finance", "productivity"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your quest progress and stats",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Quests",
+      "short_name": "Quests",
+      "description": "Browse available quests",
+      "url": "/quests",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
+
